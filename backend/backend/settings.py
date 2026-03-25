@@ -151,3 +151,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+#Google Maps Api Key
+
+GOOGLE_MAPS_API_KEY = 'AIzaSyDj63ihTGAXCul4W0hiVZ73y5bnbMNnb4U'

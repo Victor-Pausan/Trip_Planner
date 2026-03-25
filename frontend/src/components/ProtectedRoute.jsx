@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom"
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants"
 import { jwtDecode } from "jwt-decode"
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, route="/login" }) {
     const [isAuthorised, setIsAuthorised] = useState(null)
 
     useEffect(() => {
@@ -15,7 +15,7 @@ function ProtectedRoute({ children }) {
         const refreshToken = localStorage.getItem(REFRESH_TOKEN)
 
         try {
-            const res = await api.post('/api/token/refresh', {
+            const res = await api.post('/api/token/refresh/', {
                 refresh: refreshToken
             })
             if (res.status === 200) {
@@ -52,7 +52,7 @@ function ProtectedRoute({ children }) {
         return <div>Loading...</div>
     }
 
-    return isAuthorised ? children : <Navigate to='/login' />
+    return isAuthorised ? children : <Navigate to={route} />
 }
 
 export default ProtectedRoute
