@@ -1,0 +1,1 @@
+Currently working on a web application where users can create groups and each member can add ideas for planning an upcoming trip. It allows friends to collaborate on an itinerary, vote on activities, and split costs.
