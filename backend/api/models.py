@@ -1,3 +1,4 @@
+from tkinter import CASCADE
 from django.contrib.auth.models import User
 from django.db import models
 import hashlib
@@ -60,8 +61,13 @@ def get_sentinel_user():
 class Post(models.Model):
     description = models.CharField(max_length=1000)
     author = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
-    likes = models.IntegerField(default=0)
+    likes_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     title = models.CharField(max_length=50, default="Post")
+    
+class Likes(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
     

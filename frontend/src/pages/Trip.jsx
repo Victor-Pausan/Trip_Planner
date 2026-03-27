@@ -59,9 +59,7 @@ function Trip() {
     const getUser = async (id) => {
         try{
             const res = await api.get(`/api/user/${id}/`)
-            if (res.status === 200) {
-                console.log(res.data);
-                
+            if (res.status === 200) {                
                 return res.data.username
             } 
         } catch (error) {
@@ -74,8 +72,12 @@ function Trip() {
             const res = await api.get(`/api/post/${id}/`)
             if (res.status === 200) {
                 if(res.data.length != 0){
-                    const username = await getUser(res.data[0].author)
-                    res.data[0].author = username
+                    await res.data.map(async (post) => {
+                        const username = await getUser(post.author)
+                        post.author = username
+                        post.hasAppreciated = await hasAppreciated(post.id)                        
+                        return post
+                    })
                     setPosts(res.data)
                 }
             } else {
@@ -118,41 +120,46 @@ function Trip() {
         }
     }
 
+    const handleAppreciate = async (post_id, action) => {
+        try{
+            const res = await api.patch(`/api/post/update/${post_id}/?action=${action}`)
+            if(res.status === 200){
+                setPosts(posts.map((post) => {
+                    if(post.id == post_id){
+                        if(action == 'like')
+                        {
+                            post.likes_count += 1;
+                            post.hasAppreciated = true
+                        }
+                        else if(action == 'unlike'){
+                            post.likes_count -= 1;
+                            post.hasAppreciated = false
+                        }   
+                    }
+                    return post
+                }))
+            }
+        } catch (error) {
+            alert (error)
+        }
+    }
+
+    const hasAppreciated = async (post_id) => {
+        try{
+            const res = await api.get(`/api/post/liked/${post_id}/`)
+            if(res.status === 200){
+                return res.data
+            }
+
+        } catch (error) {
+            alert (error)
+        }  
+    }
+
     return (
         <>
             <Navbar />
-            {/* <div>
-                <img src={photoUri} />
-                {message != '' ? message : ''}
-                <div>{trip.title}</div>
-                <h1>Add Post:</h1>
-                <form onSubmit={addPost}>
-                    <label htmlFor="title">Title:</label>
-                    <br />
-                    <input
-                        type="text"
-                        value={postTitle}
-                        name="title"
-                        id="title"
-                        onChange={(e) => setPostTitle(e.target.value)}
-                    />
-                    <br />
-                    <label htmlFor="description">Description:</label>
-                    <br />
-                    <textarea
-                        name="description"
-                        id="description"
-                        value={postDescription}
-                        onChange={(e) => setPostDescription(e.target.value)}
-                    />
-                    <br />
-                    <input type="submit" value="Post" />
-                </form>
-                <h1>Posts:</h1>
-                {posts.map((post) => (
-                    <PostCard post={post} onDelete={deletePost} key={post.id} />
-                ))}
-            </div> */}
+
             <div className="flex h-screen w-full overflow-hidden bg-white font-sans text-gray-800">
                 {/* Left Side (App) */}
                 <div className="flex flex-col flex-1 h-full min-w-[600px] max-w-[800px] lg:max-w-[60%] border-r border-gray-200 z-10 shadow-xl">
@@ -163,7 +170,9 @@ function Trip() {
                             trip={trip}
                             posts={posts}
                             addPost={addPost}
-                            deletePost={deletePost} />
+                            deletePost={deletePost}  
+                            handleAppreciate={handleAppreciate} />
+                            
                     </div>
                 </div>
 

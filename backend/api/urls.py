@@ -20,7 +20,8 @@ urlpatterns = [
     
     path('post/<int:trip_id>/', views.CreatePost.as_view(), name='create-post'),
     path('post/delete/<int:pk>/', views.DeletePost.as_view(), name='delete-post'),
-    path('post/<int:pk>/update/', views.UpdateLikeCounter.as_view(), name='update-like-counter'),
+    path('post/update/<int:pk>/', views.UpdateLikeCounter.as_view(), name='update-like-counter'),
+    path('post/liked/<int:post_id>/', views.IsPostLiked.as_view(), name='is-liked-by-user'),
     
     path('place/<slug:pk>/', views.GetPlace.as_view(), name='get-place-info'),
 ]

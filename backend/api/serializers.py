@@ -57,8 +57,8 @@ class TripSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['id', 'description', 'author', 'created_at', 'likes', 'trip', "title"]
-        read_only_fields = ['created_at', 'author', 'trip']
+        fields = ['id', 'description', 'author', 'created_at', 'likes_count', 'trip', "title"]
+        read_only_fields = ['created_at', 'author', 'trip','likes_count']
         extra_kwargs = {
             'title': {'required': False, 'allow_null': True}
         }

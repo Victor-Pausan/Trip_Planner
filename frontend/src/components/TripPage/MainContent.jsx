@@ -21,12 +21,11 @@ function formatMonthDayYear(dateInput) {
   return `${month} - ${day} - ${year}`;
 }
 
-export default function MainContent({photoURI, trip, posts, addPost, deletePost}) {
+export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [newPost, setNewPost] = useState('');
 
   useEffect(() => {
     if (!isEditingTitle) setTitle(trip?.title ?? '');
@@ -38,8 +37,8 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
         title: postTitle,
         description: postDescription
       })
-      //setPosts([...posts, { id: Date.now(), text: newPost }]);
-      setNewPost('');
+      setPostTitle('')
+      setPostDescription('')
     }
   };
 
@@ -47,9 +46,9 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
     <div className="flex-1 overflow-y-auto bg-gray-50 relative pb-20">
       {/* Hero Section */}
       <div className="relative h-64 w-full">
-        <img 
-          src={photoURI} 
-          alt="Place Picture" 
+        <img
+          src={photoURI}
+          alt="Place Picture"
           className="w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
@@ -75,7 +74,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
                 className="text-4xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none w-full bg-transparent"
               />
             ) : (
-              <h1 
+              <h1
                 className="text-4xl font-bold text-gray-900 cursor-pointer hover:bg-gray-50 rounded px-2 -ml-2 py-1 transition-colors"
                 onClick={() => setIsEditingTitle(true)}
               >
@@ -83,13 +82,13 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
               </h1>
             )}
           </div>
-          
+
           <div className="flex items-center justify-between mt-8">
             <button className="flex items-center space-x-2 text-gray-500 hover:text-gray-800 transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium">
               <Calendar size={16} />
               <span>Add trip dates</span>
             </button>
-            
+
             <div className="flex items-center space-x-2">
               <div className="flex -space-x-2">
                 <img src="https://picsum.photos/seed/user1/32/32" alt="User" className="w-8 h-8 rounded-full border-2 border-white" referrerPolicy="no-referrer" />
@@ -103,7 +102,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
       </div>
 
       <div className="max-w-3xl mx-auto px-6 mt-12 space-y-12">
-        
+
         {/* Explore Section */}
         <section>
           <div className="flex items-center justify-between mb-6">
@@ -116,7 +115,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
               <span>Browse all</span>
             </button>
           </div>
-          
+
           <div className="flex space-x-4 overflow-x-auto pb-4 snap-x">
             {/* Card 1 */}
             <div className="w-64 flex-shrink-0 snap-start group cursor-pointer">
@@ -130,7 +129,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
                 <span className="text-xs text-gray-600">Alistair Parrington</span>
               </div>
             </div>
-            
+
             {/* Card 2 */}
             <div className="w-64 flex-shrink-0 snap-start group cursor-pointer">
               <div className="h-40 rounded-xl overflow-hidden mb-3">
@@ -143,7 +142,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
                 <span className="text-xs text-gray-600">jonathan perera</span>
               </div>
             </div>
-            
+
             {/* Card 3 */}
             <div className="w-64 flex-shrink-0 snap-start group cursor-pointer relative">
               <div className="h-40 rounded-xl overflow-hidden mb-3">
@@ -208,7 +207,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
               </button>
             </div>
           </div>
-          
+
           <div className="col-span-1 bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
             <h3 className="font-semibold text-gray-900">Budgeting</h3>
             <div>
@@ -228,14 +227,14 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
           </div>
 
           <div className="space-y-6 mb-8">
-            {(posts?.length ?? 0) === 0 ?  (
+            {(posts?.length ?? 0) === 0 ? (
               <p className="text-gray-500 text-sm italic text-center py-4">No notes yet. Add your ideas below!</p>
             ) : (
               posts.map(note => (
                 <div key={note.id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm relative group">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">{note.title}</h3>
                   <p className="text-gray-600 text-lg mb-6 leading-relaxed whitespace-pre-wrap">{note.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <img src={avatar} alt={note.author} className="w-12 h-12 rounded-full object-cover" referrerPolicy="no-referrer" />
@@ -244,18 +243,18 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
                         <div className="text-gray-500 text-sm">{formatMonthDayYear(note.created_at)}</div>
                       </div>
                     </div>
-                    
-                    <button 
-                      onClick={() => handleAppreciate(note.id)}
+
+                    <button
+                      onClick={() => handleAppreciate(note.id, note.hasAppreciated ? 'unlike' : 'like')}
                       className={`flex items-center space-x-2 px-3 py-1.5 rounded-full transition-colors ${note.hasAppreciated ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
                     >
                       <Heart size={18} className={note.hasAppreciated ? 'fill-current' : ''} />
-                      <span className="font-medium">{note.appreciations}</span>
+                      <span className="font-medium">{note.likes_count}</span>
                     </button>
                   </div>
 
-                  <button 
-                    onClick={() => setNotes(notes.filter(n => n.id !== note.id))}
+                  <button
+                    onClick={() => deletePost(note.id)}
                     className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     &times;
@@ -264,7 +263,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
               ))
             )}
           </div>
-          
+
 
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
             <h4 className="text-sm font-semibold text-gray-700 mb-3">Add a new note</h4>
@@ -283,7 +282,7 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
                 className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24 bg-gray-50"
               />
               <div className="flex justify-end">
-                <button 
+                <button
                   onClick={handleAddPost}
                   disabled={!postDescription.trim() || !postTitle.trim()}
                   className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-6 py-2 rounded-lg font-medium text-sm transition-colors"
@@ -293,8 +292,8 @@ export default function MainContent({photoURI, trip, posts, addPost, deletePost}
               </div>
             </div>
           </div>
-          
-          
+
+
         </section>
 
       </div>
