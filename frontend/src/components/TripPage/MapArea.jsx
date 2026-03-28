@@ -15,7 +15,7 @@ export default function MapArea() {
         className="absolute inset-0 z-0"
       ></iframe>
 
-      {/* Floating Controls */}
+      {/* Floating Controls
       <div className="absolute top-4 left-4 z-10">
         <button className="bg-white rounded-full shadow-md px-4 py-2 flex items-center space-x-2 text-sm font-medium hover:bg-gray-50 transition-colors">
           <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
@@ -54,7 +54,7 @@ export default function MapArea() {
             <Minus size={20} />
           </button>
         </div>
-      </div>
-    </div>
+      </div>*/}
+    </div> 
   );
 }

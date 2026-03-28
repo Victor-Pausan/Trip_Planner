@@ -36,7 +36,6 @@ class Place(models.Model):
 class Trip(models.Model):
     title = models.CharField(max_length=100, blank=True)
     description = models.CharField(default=None, blank=True, null=True, max_length=200)
-    #location = models.CharField(max_length=30, default="Location")
     start_date = models.DateField(default=None, blank=True, null=True)
     end_date = models.DateField(default=None, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -52,7 +51,7 @@ class Trip(models.Model):
             
             self.__class__.objects.filter(id=self.id).update(title=self.title)
         else:
-            super.save(*args, **kwargs)
+            super().save(*args, **kwargs)
     
     
 def get_sentinel_user():

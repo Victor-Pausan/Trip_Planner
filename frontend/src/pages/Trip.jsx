@@ -12,8 +12,6 @@ function Trip() {
     const [message, setMessage] = useState("")
     const [trip, setTrip] = useState("")
     const [posts, setPosts] = useState([])
-    const [postTitle, setPostTitle] = useState("")
-    const [postDescription, setPostDescription] = useState("")
 
     const placeholderImg = "https://placehold.co/600x400"
     const [photoUri, setPhotoUri] = useState(placeholderImg)
@@ -46,8 +44,8 @@ function Trip() {
         try {
             const res = await api.get(`/api/trip/get/${id}/`)
             if (res.status === 200) {
-                setTrip(res.data)
                 await getPlaceData(res.data.place)
+                setTrip(res.data)
             } else {
                 alert("Couldn't get trip.")
             }
@@ -72,13 +70,15 @@ function Trip() {
             const res = await api.get(`/api/post/${id}/`)
             if (res.status === 200) {
                 if(res.data.length != 0){
-                    await res.data.map(async (post) => {
-                        const username = await getUser(post.author)
-                        post.author = username
-                        post.hasAppreciated = await hasAppreciated(post.id)                        
-                        return post
-                    })
-                    setPosts(res.data)
+                    const postsWithFullData = await Promise.all(
+                        res.data.map(async (post) => {
+                            const username = await getUser(post.author)
+                            post.author = username
+                            post.hasAppreciated = await hasAppreciated(post.id)                        
+                            return { ...post, author:username, hasAppreciated:await hasAppreciated(post.id)}
+                        })
+                    )
+                    setPosts(postsWithFullData)
                 }
             } else {
                 setMessage("No posts available yet.")
@@ -89,7 +89,6 @@ function Trip() {
     }
 
     const addPost = async (newPost) => {
-
         try {
             const res = await api.post(`/api/post/${id}/`, {
                 description: newPost.description,

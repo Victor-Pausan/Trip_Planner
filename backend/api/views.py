@@ -271,7 +271,6 @@ class UpdateLikeCounter(generics.UpdateAPIView):
             if action == 'like':
                 like, created = Likes.objects.get_or_create(post=post, user=user)
                 if created:
-                    #Post.objects.filter(pk=post.pk).update(likes_count=F('likes_count') + 1)
                     post.likes_count += 1
                     post.save()
 

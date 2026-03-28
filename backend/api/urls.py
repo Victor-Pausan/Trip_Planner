@@ -14,7 +14,7 @@ urlpatterns = [
     path('groups/token/process/<slug:slug>/', views.AddUserToGroup.as_view(), name='add-user-to-group'),
     
     path('trip/create/', views.CreateTrip.as_view(), name='create-trip'),
-    path('trip/<slug:group_slug>/', views.GetAllTrips.as_view(), name='get-all-trips'),
+    path('trips/<slug:group_slug>/', views.GetAllTrips.as_view(), name='get-all-trips'),
     path('trip/get/<int:pk>/', views.GetTrip.as_view(), name='get-trip'),
     path('trip/delete/<int:pk>/', views.DeleteTrip.as_view(), name='delete-trip'),
     

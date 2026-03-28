@@ -19,9 +19,9 @@ function formatMonthDayYear(dateInput) {
   const day = parts.find(p => p.type === 'day')?.value ?? '';
   const year = parts.find(p => p.type === 'year')?.value ?? '';
   return `${month} - ${day} - ${year}`;
-}
+  }
 
-export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate }) {
+  export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -237,7 +237,12 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <img src={avatar} alt={note.author} className="w-12 h-12 rounded-full object-cover" referrerPolicy="no-referrer" />
+                      {/* <img src={avatar} alt={note.author} className="w-12 h-12 rounded-full object-cover" referrerPolicy="no-referrer" /> */}
+                      <div className="flex -space-x-3 px-2">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-700 shadow-sm">
+                          {note.author.charAt(0).toUpperCase()}
+                        </div>
+                      </div>
                       <div>
                         <div className="text-gray-900 font-medium">{note.author}</div>
                         <div className="text-gray-500 text-sm">{formatMonthDayYear(note.created_at)}</div>
