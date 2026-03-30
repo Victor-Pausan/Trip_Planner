@@ -23,25 +23,27 @@ export default function TripForm({ onClose, group_id, groups }) {
     const addTrip = async (e) => {
         e.preventDefault()
 
-        setFormReqLoading(true);
+        if(formData.locationName && formData.locationID){
+            setFormReqLoading(true);
 
-        try {
-            const res = await api.post(`/api/trip/create/`,
-                {
-                    locationName: formData.locationName,
-                    locationID: formData.locationID,
-                    start_date: formData.startDate,
-                    end_date: formData.endDate,
-                    group: group_id ? group_id : formData.groupType 
-                });
-            if (res.status === 201) {
-                redirectToTrip(res.data.id)
-            } else {
-                alert("Failed to add trip.")
+            try {
+                const res = await api.post(`/api/trip/create/`,
+                    {
+                        locationName: formData.locationName,
+                        locationID: formData.locationID,
+                        start_date: formData.startDate,
+                        end_date: formData.endDate,
+                        group: group_id ? group_id : formData.groupType 
+                    });
+                if (res.status === 201) {
+                    redirectToTrip(res.data.id)
+                } else {
+                    alert("Failed to add trip.")
+                }
+            } catch (error) {
+                alert(error)
             }
-        } catch (error) {
-            alert(error)
-        }
+        } 
     }
 
     return (
@@ -149,9 +151,12 @@ export default function TripForm({ onClose, group_id, groups }) {
                         {/* SUBMIT BUTTON */}
                         <button
                             type="submit"
-                            disabled={formReqLoading}
-                            className="w-full  bg-gradient-to-br from-green-400 to-sky-400 text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 mt-4 flex items-center justify-center gap-2"
-                        >
+                            disabled={formReqLoading || !(formData.locationID && formData.locationName)}
+                            className={`w-full bg-gradient-to-br text-white from-green-400 to-sky-400  font-bold py-4 px-4 rounded-xl shadow-lg transition-all duration-200 mt-4 flex items-center justify-center gap-2
+                                ${formReqLoading || !(formData.locationID && formData.locationName)
+                                  ? 'cursor-not-allowed opacity-60'
+                                  : 'hover:shadow-xl hover:-translate-y-0.5 transform cursor-pointer'
+                            }`}>
                             Start Planning <Plane size={18} />
                             {formReqLoading ? <Loader2 size={18} className="animate-spin" /> : ''}
                         </button>

@@ -19,11 +19,14 @@ function Group() {
     const [trips, setTrips] = useState([])
     const placeholderImg = "https://placehold.co/600x400"
 
+    const [groupTitle, setGroupTitle] = useState('');
+    const [isEditingGroupTitle, setIsEditingGroupTitle] = useState(false);
+
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [isAddTripOpen, setIsAddTripOpen] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const handleCopy = () => {
+    const handleCopy = (inviteLink) => {
         navigator.clipboard.writeText(inviteLink);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -38,12 +41,13 @@ function Group() {
         setMessage(location.state)
         window.history.replaceState({}, document.title)
 
-        console.log(location.state);
-
         getGroup()
         getTrips()
     }, [])
 
+    useEffect(() => {
+        if (!isEditingGroupTitle) setGroupTitle(group.title ?? '');
+    }, [group.title]);
 
     const getGroup = async () => {
         try {
@@ -123,6 +127,19 @@ function Group() {
         }
     }
 
+    const updateGroupTitle = async (newTitle) => {
+        try{
+            const res = await api.patch(
+                `/api/groups/update/title/${group.id}/`,
+                {
+                    title:newTitle
+                }
+            )
+        } catch(error){
+            alert(error)
+        }
+    }
+
     return (
         <>
             <Navbar />
@@ -137,7 +154,32 @@ function Group() {
 
                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
-                            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight mb-2">{group.title}</h1>
+                            {isEditingGroupTitle ? (
+                                <input
+                                    type="text"
+                                    value={groupTitle}
+                                    onChange={(e) => setGroupTitle(e.target.value)}
+                                    onBlur={() => {
+                                        setIsEditingGroupTitle(false);
+                                        updateGroupTitle(groupTitle)
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            setIsEditingGroupTitle(false);
+                                            updateGroupTitle(groupTitle)
+                                        }
+                                    }}
+                                    autoFocus
+                                    className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight border-b-2 border-blue-500 focus:outline-none bg-transparent w-full"
+                                />
+                            ) : (
+                                <h1
+                                    className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight mb-2 cursor-pointer hover:bg-gray-100 rounded px-2 -ml-2 py-1 transition-colors"
+                                    onClick={() => setIsEditingGroupTitle(true)}
+                                >
+                                    {groupTitle}
+                                </h1>
+                            )}
                             <p className="text-gray-500 flex items-center gap-2">
                                 <Users size={16} /> {members.length} Members
                             </p>
@@ -232,7 +274,7 @@ function Group() {
                                     className="bg-transparent border-none focus:ring-0 text-sm text-gray-600 w-full px-3 outline-none"
                                 />
                                 <button
-                                    onClick={handleCopy}
+                                    onClick={() => handleCopy('http://' + window.location.host + `/group/join/${group.slug}`)}
                                     className="bg-white border border-gray-200 shadow-sm text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors whitespace-nowrap"
                                 >
                                     {copied ? <><Check size={16} className="text-green-500" /> Copied</> : <><Copy size={16} /> Copy</>}

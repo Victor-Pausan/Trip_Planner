@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { MapPin, Calendar, Users } from "lucide-react";
 
 function Home() {
     const navigate = useNavigate()
@@ -37,7 +38,7 @@ function Home() {
                         <div className="mt-16 grid w-full max-w-4xl gap-6 md:grid-cols-3">
                             <div className="rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
                                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                                    {/* <MapPin className="h-6 w-6 text-primary" /> */}
+                                    <MapPin className="h-6 w-6 text-primary" />
                                 </div>
                                 <h3 className="mb-2 text-lg font-semibold text-card-foreground">Track Destinations</h3>
                                 <p className="text-sm text-muted-foreground">
@@ -47,7 +48,7 @@ function Home() {
 
                             <div className="rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
                                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10">
-                                    {/* <Calendar className="h-6 w-6 text-secondary" /> */}
+                                    <Calendar className="h-6 w-6 text-secondary" />
                                 </div>
                                 <h3 className="mb-2 text-lg font-semibold text-card-foreground">Plan Trips</h3>
                                 <p className="text-sm text-muted-foreground">
@@ -57,7 +58,7 @@ function Home() {
 
                             <div className="rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
                                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                                    {/* <Users className="h-6 w-6 text-primary" /> */}
+                                    <Users className="h-6 w-6 text-primary" />
                                 </div>
                                 <h3 className="mb-2 text-lg font-semibold text-card-foreground">Share Memories</h3>
                                 <p className="text-sm text-muted-foreground">

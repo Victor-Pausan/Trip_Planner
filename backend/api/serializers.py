@@ -53,6 +53,10 @@ class TripSerializer(serializers.ModelSerializer):
                 data[field] = None
         return super().to_internal_value(data)
         
+class TripTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
+        fields = ['title']
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,7 +71,7 @@ class PostSerializer(serializers.ModelSerializer):
 class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
-        fields = ['id', 'name', 'photoURI']
+        fields = ['id', 'name', 'photoURI', 'latitude', 'longitude']
         extra_kwargs = {
             'photoURI': {'required': False, 'allow_null': True}
         }

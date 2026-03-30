@@ -31,6 +31,8 @@ class Place(models.Model):
     id = models.SlugField(unique=True, primary_key=True)
     name = models.CharField(max_length=100)
     photoURI = models.CharField(max_length=300, default=None, blank=True, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
 
 class Trip(models.Model):

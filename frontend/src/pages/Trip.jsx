@@ -12,9 +12,11 @@ function Trip() {
     const [message, setMessage] = useState("")
     const [trip, setTrip] = useState("")
     const [posts, setPosts] = useState([])
+    const [placeLocation, setPlaceLocation] = useState(null)
+    const [mapReadyToRender, setMapReadyToRender] = useState(false)
 
-    const placeholderImg = "https://placehold.co/600x400"
-    const [photoUri, setPhotoUri] = useState(placeholderImg)
+    const [photoUri, setPhotoUri] = useState(null)
+    const [isPhotoLoading, setIsPhotoLoading] = useState(true)
 
     useEffect(() => {
         getTrip()
@@ -27,17 +29,19 @@ function Trip() {
             const res = await api.get(`/api/place/${placeId}/`)
             if (res.status === 200) {
                 const apiPhotoUri = res.data.photoURI
-                if (apiPhotoUri) {
-                    setPhotoUri(apiPhotoUri)
-                } else {
-                    setPhotoUri(placeholderImg)
-                }
-            } else {
-                setPhotoUri(placeholderImg)
+                const latitude = parseFloat(res.data.latitude)
+                const longitude = parseFloat(res.data.longitude)
+                
+                setPlaceLocation({ lat:latitude, lng:longitude })
+                setMapReadyToRender(true)
+                setPhotoUri(apiPhotoUri || null)
             }
         } catch (error) {
             console.log("Error fetching" + error);
+        } finally {
+            setIsPhotoLoading(false)
         }
+        
     }
 
     const getTrip = async () => {
@@ -155,6 +159,19 @@ function Trip() {
         }  
     }
 
+    const updateTripTitle = async (newTitle) => {
+        try{
+            const res = await api.patch(
+                `/api/trip/update/title/${trip.id}/`,
+                {
+                    title:newTitle
+                }
+            )
+        } catch(error){
+            alert(error)
+        }
+    }
+
     return (
         <>
             <Navbar />
@@ -170,14 +187,18 @@ function Trip() {
                             posts={posts}
                             addPost={addPost}
                             deletePost={deletePost}  
-                            handleAppreciate={handleAppreciate} />
+                            handleAppreciate={handleAppreciate}
+                            isPhotoLoading={isPhotoLoading}
+                            onTitleSave={updateTripTitle} 
+                        />
+                            
                             
                     </div>
                 </div>
 
                 {/* Right Side (Map) */}
                 <div className="flex-1 h-full bg-blue-100 relative hidden md:block">
-                    <MapArea />
+                    {mapReadyToRender ? <MapArea location={placeLocation}/> : '' }
                 </div>
             </div>
         </>

@@ -19,9 +19,9 @@ function formatMonthDayYear(dateInput) {
   const day = parts.find(p => p.type === 'day')?.value ?? '';
   const year = parts.find(p => p.type === 'year')?.value ?? '';
   return `${month} - ${day} - ${year}`;
-  }
+}
 
-  export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate }) {
+export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate, isPhotoLoading, onTitleSave }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -29,7 +29,7 @@ function formatMonthDayYear(dateInput) {
 
   useEffect(() => {
     if (!isEditingTitle) setTitle(trip?.title ?? '');
-  }, [trip?.title, isEditingTitle]);
+  }, [trip?.title]);
 
   const handleAddPost = () => {
     if (postTitle.trim() && postDescription.trim()) {
@@ -45,18 +45,25 @@ function formatMonthDayYear(dateInput) {
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 relative pb-20">
       {/* Hero Section */}
-      <div className="relative h-64 w-full">
-        <img
-          src={photoURI}
-          alt="Place Picture"
-          className="w-full h-full object-cover"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute top-4 right-4">
-          <button className="p-2 bg-black/40 hover:bg-black/60 backdrop-blur-sm rounded-full text-white transition-colors">
-            <Pencil size={16} />
-          </button>
-        </div>
+      <div className="relative h-64 w-full overflow-hidden">
+        {isPhotoLoading ? (
+          // Tailwind skeleton shimmer
+          <div className="w-full h-full bg-gray-200 animate-pulse relative overflow-hidden">
+            <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          </div>
+        ) : photoURI ? (
+          <img
+            src={photoURI}
+            alt="Place Picture"
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          // Fallback when no photo is available
+          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+            <span className="text-gray-400 text-sm font-medium">No photo available</span>
+          </div>
+        )}
       </div>
 
       {/* Floating Title Card */}
@@ -68,8 +75,16 @@ function formatMonthDayYear(dateInput) {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                onBlur={() => setIsEditingTitle(false)}
-                onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
+                onBlur={() => {
+                  setIsEditingTitle(false)
+                  onTitleSave?.(title);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsEditingTitle(false);
+                    onTitleSave?.(title);
+                  }
+                }}
                 autoFocus
                 className="text-4xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none w-full bg-transparent"
               />

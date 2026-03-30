@@ -2,10 +2,10 @@ from django.db import transaction
 import requests
 import random
 
-from django.db.models import F
+from django.db.models import F, QuerySet
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from rest_framework.views import APIView
 
 from backend.settings import GOOGLE_MAPS_API_KEY
@@ -47,7 +47,6 @@ class GetUserByGroup(generics.ListAPIView):
 #------------------------------------------------------------------------------------
 #Group related views
 #------------------------------------------------------------------------------------
-
 
 class CreateGroup(generics.ListCreateAPIView):
     serializer_class = GroupSerializer
@@ -102,6 +101,21 @@ class AddUserToGroup(generics.UpdateAPIView):
             'message': 'Joined group succesfuly.',
             'group': self.get_serializer(group).data, 
         }, status=status.HTTP_200_OK)
+
+class UpdateGroupTitle(generics.UpdateAPIView):
+    serializer_class = GroupTitleSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Group.objects.filter(users__in=[user])
+
+    def patch(self, request, *args, **kwargs):
+        group = self.get_object()
+        group = Group.objects.get(id=group.id)
+        group.title = request.data.get('title')
+        group.save()
+        return Response(self.serializer_class(group).data, status=status.HTTP_200_OK)
   
         
 #------------------------------------------------------------------------------------
@@ -109,22 +123,27 @@ class AddUserToGroup(generics.UpdateAPIView):
 #------------------------------------------------------------------------------------
 
 
-def get_place_photo(place_id, api_key):
+def get_place_data(place_id, api_key):
     if not place_id:
         return None
 
     headers = {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': api_key,
-        'X-Goog-FieldMask': 'id,displayName,photos'
+        'X-Goog-FieldMask': 'id,displayName,photos,location'
     }
 
     try:
         place_url = f"https://places.googleapis.com/v1/places/{place_id}"
         res = requests.get(place_url, headers=headers)
         res.raise_for_status()
-        
+
+        place_data = {}
+
         data = res.json()
+
+        if 'location' in data and data['location']:
+            place_data['location'] = data['location']
 
         if 'photos' in data and data['photos']:
             photos = data['photos']
@@ -142,14 +161,14 @@ def get_place_photo(place_id, api_key):
                 photo_res.raise_for_status()
                 
                 photo_data = photo_res.json()
-                
-                return photo_data.get('photoUri')
+
+                place_data['photoURI'] = photo_data.get('photoUri')
 
             except Exception as e:
                 print(f"Error fetching photo media: {e}")
                 return None
         
-        return None
+        return place_data
 
     except Exception as e:
         print(f"Error fetching place details: {e}")
@@ -186,8 +205,14 @@ class CreateTrip(generics.CreateAPIView):
             place_id = self.request.data.get("locationID")
             place_name = self.request.data.get("locationName")
             if not Place.objects.filter(id=place_id):
-                photo_URI = get_place_photo(place_id, GOOGLE_MAPS_API_KEY)
-                place = Place.objects.create(id=place_id, name=place_name, photoURI=photo_URI)
+                place_data = get_place_data(place_id, GOOGLE_MAPS_API_KEY)
+                if place_data:
+                    photo_URI = place_data['photoURI']
+                    latitude = float(place_data['location']['latitude'])
+                    longitude = float(place_data['location']['longitude'])
+                    place = Place.objects.create(id=place_id, name=place_name, photoURI=photo_URI, latitude=latitude, longitude=longitude)
+                else:
+                    raise ObjectDoesNotExist()
             else:  
                 place = Place.objects.get(id=place_id)
             serializer.save(group=group, place=place)
@@ -204,8 +229,17 @@ class GetTrip(generics.RetrieveAPIView):
         trip = Trip.objects.get(id=trip_id, group__users__in=[user])
         if trip.place:
             place = Place.objects.get(id=trip.place.id)
-            place.photoURI = get_place_photo(place.id, GOOGLE_MAPS_API_KEY)
-            place.save()
+            place_data = get_place_data(place.id, GOOGLE_MAPS_API_KEY)
+            if place_data:
+                photo_URI = place_data['photoURI']
+                latitude = float(place_data['location']['latitude'])
+                longitude = float(place_data['location']['longitude'])
+                place.photoURI = photo_URI
+                place.latitude = latitude
+                place.longitude = longitude
+                place.save()
+            else:
+                raise ObjectDoesNotExist()
     
     def get_queryset(self):
         user = self.request.user
@@ -223,6 +257,30 @@ class DeleteTrip(generics.DestroyAPIView):
             return Trip.objects.filter(group__users__in = [user])       
         except Trip.DoesNotExist:
             raise PermissionDenied
+
+class GetAllTripsOfUser(generics.ListAPIView):
+    serializer_class = TripSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        groups = Group.objects.filter(users__in=[user])
+        return Trip.objects.filter(group__in=groups)
+
+class UpdateTripTitle(generics.UpdateAPIView):
+    serializer_class = GroupTitleSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Trip.objects.filter(group__users__in=[user])
+
+    def patch(self, request, *args, **kwargs):
+        trip = self.get_object()
+        trip = Trip.objects.get(id=trip.id)
+        trip.title = request.data.get('title')
+        trip.save()
+        return Response(self.get_serializer(trip).data, status=status.HTTP_200_OK)
     
 #------------------------------------------------------------------------------------
 #Posts related views

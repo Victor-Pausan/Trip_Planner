@@ -71,7 +71,7 @@ const Navbar = () => {
                     </button>
 
                     {/* User Dropdown */}
-                    {user && (
+                    {user ? (
                         <div className="relative">
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -132,7 +132,11 @@ const Navbar = () => {
                                 </>
                             )}
                         </div>
-                    )}
+                    ) : 
+                    <button type="button" 
+                    onClick={login}
+                    class="text-heading bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Sign In</button>
+                    }
                 </div>
             </div>
         </nav >

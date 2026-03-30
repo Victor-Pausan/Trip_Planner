@@ -7,7 +7,7 @@ import { Users, Trash2, ArrowRight, Plus } from 'lucide-react';
 
 function GroupList() {
     const [groups, setGroups] = useState([]);
-    const [title, setTitle] = useState("");
+    const [newGroupTitle, setNewGroupTitle] = useState("");
 
     useEffect(() => {
         fetchGroups();
@@ -39,11 +39,14 @@ function GroupList() {
         e.preventDefault()
 
         try {
-            const res = await api.post('/api/groups/', { title })
-            if (res.status == 201) {
-                fetchGroups();
-            } else {
-                alert("Group creation failed")
+            if (newGroupTitle) {
+                const res = await api.post('/api/groups/', { title: newGroupTitle })
+                if (res.status == 201) {
+                    fetchGroups();
+                    setNewGroupTitle('')
+                } else {
+                    alert("Group creation failed")
+                }
             }
         } catch (error) {
             alert(error)
@@ -65,13 +68,14 @@ function GroupList() {
                         <input
                             type="text"
                             placeholder="New group name..."
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            value={newGroupTitle}
+                            onChange={(e) => setNewGroupTitle(e.target.value)}
                             className="bg-white border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent px-4 py-2.5 w-full md:w-64 shadow-sm outline-none"
                         />
                         <button
                             type="submit"
-                            className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap"
+                            disabled={!newGroupTitle}
+                            className="disabled:bg-gray-400 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap"
                         >
                             <Plus size={16} /> Create
                         </button>
@@ -82,9 +86,6 @@ function GroupList() {
                     {groups.map((group) => (
                         <div key={group.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col h-full relative group">
                             <div className="flex-grow">
-                                {/* <div className="flex items-center gap-2 text-xs font-semibold text-indigo-500 uppercase tracking-wider mb-2">
-                                    <Users size={14} /> {group.members} {group.members === 1 ? 'Member' : 'Members'}
-                                </div> */}
                                 <h3 className="text-xl font-bold text-gray-800 mb-4 line-clamp-2">{group.title}</h3>
                             </div>
 
