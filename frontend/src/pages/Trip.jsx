@@ -15,12 +15,17 @@ function Trip() {
     const [placeLocation, setPlaceLocation] = useState(null)
     const [mapReadyToRender, setMapReadyToRender] = useState(false)
 
+    const [reservations, setReservations] = useState([]);
+
     const [photoUri, setPhotoUri] = useState(null)
     const [isPhotoLoading, setIsPhotoLoading] = useState(true)
 
     useEffect(() => {
         getTrip()
         getPosts()
+        getFlights()
+        getLodgings()
+        getActivities()
     }, [])
 
     const getPlaceData = async (placeId) => {
@@ -172,6 +177,32 @@ function Trip() {
         }
     }
 
+    const getFlights = async () => {
+
+    }
+  
+    const getLodgings = async () => {
+  
+    }
+  
+    const getActivities = async () => {
+  
+    }
+
+    const addReservation = async () => {
+
+    }
+  
+    const handleEditReservation = async (reservation, data) => {
+        setReservations(reservations.map(r => 
+            (r.id === reservation.id) && (r.type === reservation.type) ? { ...data, id: r.id, type, author: r.author } : r
+        ));
+    }
+  
+    const handleDeleteReservation = async (id, type) => {
+        setReservations(reservations.filter(r => (r.id !== id) || (r.type != type)));
+    }
+
     return (
         <>
             <Navbar />
@@ -189,7 +220,11 @@ function Trip() {
                             deletePost={deletePost}  
                             handleAppreciate={handleAppreciate}
                             isPhotoLoading={isPhotoLoading}
-                            onTitleSave={updateTripTitle} 
+                            onTitleSave={updateTripTitle}
+                            reservations={reservations}
+                            addReservation={addReservation}
+                            handleDeleteReservation={handleDeleteReservation}
+                            handleEditReservation={handleEditReservation}
                         />
                             
                             

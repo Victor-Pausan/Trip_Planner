@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Group, Place, Trip, Post
+from .models import Group, Place, Trip, Post, FlightReservation, LodgingReservation, Activity
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,4 +75,46 @@ class PlaceSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'photoURI', 'latitude', 'longitude']
         extra_kwargs = {
             'photoURI': {'required': False, 'allow_null': True}
+        }
+
+class FlightReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FlightReservation
+        fields = ['id', 'author',
+                  'airline', 'flight_code',
+                  'departure_airport', 'arrival_airport',
+                  'start_date', 'end_date',
+                  'notes', 'created_at']
+        extra_kwargs = {
+            'airline': {'required': False, 'allow_null': True},
+            'flight_code': {'required': False, 'allow_null': True},
+            'start_date': {'required': False, 'allow_null': True},
+            'end_date': {'required': False, 'allow_null': True},
+            'notes': {'required': False, 'allow_null': True}
+        }
+
+class LodgingReservationSerializer(serializers.Serializer):
+    class Meta:
+        model = LodgingReservation
+        fields = ['id', 'author',
+                  'place', 'link',
+                  'check_in', 'check_out',
+                  'notes', 'created_at']
+        extra_kwargs = {
+            'link': {'required': False, 'allow_null': True},
+            'check_in': {'required': False, 'allow_null': True},
+            'check_out': {'required': False, 'allow_null': True},
+            'notes': {'required': False, 'allow_null': True}
+        }
+
+class ActivitySerializer(serializers.Serializer):
+    class Meta:
+        model = Activity
+        fields = ['id', 'author',
+                  'place',
+                  'start_date', 'end_date',
+                  'notes', 'created_at']
+        extra_kwargs = {
+            'start_date': {'required': False, 'allow_null': True},
+            'notes': {'required': False, 'allow_null': True}
         }

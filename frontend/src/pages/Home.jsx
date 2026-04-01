@@ -36,7 +36,7 @@ function Home() {
 
                         {/* Feature Cards */}
                         <div className="mt-16 grid w-full max-w-4xl gap-6 md:grid-cols-3">
-                            <div className="rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
+                            <div className="rounded-xl border border-border bg-white p-6 transition-all hover:shadow-lg">
                                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                                     <MapPin className="h-6 w-6 text-primary" />
                                 </div>
@@ -46,7 +46,7 @@ function Home() {
                                 </p>
                             </div>
 
-                            <div className="rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
+                            <div className="rounded-xl border border-border bg-white p-6 transition-all hover:shadow-lg">
                                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10">
                                     <Calendar className="h-6 w-6 text-secondary" />
                                 </div>
@@ -56,7 +56,7 @@ function Home() {
                                 </p>
                             </div>
 
-                            <div className="rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
+                            <div className="rounded-xl border border-border bg-white p-6 transition-all hover:shadow-lg">
                                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                                     <Users className="h-6 w-6 text-primary" />
                                 </div>

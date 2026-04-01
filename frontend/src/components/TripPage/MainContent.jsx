@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Heart, ChevronDown, Search, ChevronRight, Plane, Bed, Car, Utensils, Paperclip, MoreHorizontal, Calendar, Users, Pencil, Plus, MessageSquare } from 'lucide-react';
-import avatar from '../../assets/avatar.jpg'
+import { Heart, ChevronDown, Search, ChevronRight, Plane, Bed, Car, Utensils, Paperclip, MoreHorizontal, Calendar, Users, Pencil, Plus, MessageSquare, Home, MapPin, Trash2 } from 'lucide-react';
+import { useUser } from '../../contexts/UserContext'
+import { TripReservationsSection } from './TripsReservationsSection';
+import { FlightModal, LodgingModal, ActivityModal } from './Modals';
 
 function formatMonthDayYear(dateInput) {
   if (!dateInput) return '';
@@ -21,11 +23,16 @@ function formatMonthDayYear(dateInput) {
   return `${month} - ${day} - ${year}`;
 }
 
-export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate, isPhotoLoading, onTitleSave }) {
+export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate, isPhotoLoading, onTitleSave, reservations, addReservation, editReservation, deleteReservation }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  const { user: currentUser } = useUser()
+
+  const [activeModal, setActiveModal] = useState(null);
+  const [editingReservation, setEditingReservation] = useState(null);
 
   useEffect(() => {
     if (!isEditingTitle) setTitle(trip?.title ?? '');
@@ -40,6 +47,31 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
       setPostTitle('')
       setPostDescription('')
     }
+  };
+
+  const handleSaveReservation = (type, data) => {
+    if (editingReservation) {
+      editReservation(editReservation, data)
+    }
+    //  else {
+    //   const newReservation = {
+    //     ...data,
+    //     type,
+    //     author: currentUser
+    //   };
+    //   setReservations([...reservations, newReservation]);
+    // }
+    closeModal();
+  };
+
+  const handleEditReservation = (reservation) => {
+    setEditingReservation(reservation);
+    setActiveModal(reservation.type);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setEditingReservation(null);
   };
 
   return (
@@ -118,205 +150,140 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
 
       <div className="max-w-3xl mx-auto px-6 mt-12 space-y-12">
 
-        {/* Explore Section */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-              <ChevronDown size={24} className="text-gray-400" />
-              <span>Explore</span>
-            </h2>
-            <button className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors">
-              <Search size={16} />
-              <span>Browse all</span>
+        {/* Reservations Grid */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Reservations and attachments</h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+            <button onClick={() => setActiveModal('flight')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all group">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-2 group-hover:scale-110 transition-transform">
+                <Plane size={20} />
+              </div>
+              <span className="text-xs font-medium text-gray-600">Flight</span>
             </button>
-          </div>
-
-          <div className="flex space-x-4 overflow-x-auto pb-4 snap-x">
-            {/* Card 1 */}
-            <div className="w-64 flex-shrink-0 snap-start group cursor-pointer">
-              <div className="h-40 rounded-xl overflow-hidden mb-3">
-                <img src="https://picsum.photos/seed/sigiriya/400/300" alt="Sigiriya" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+            <button onClick={() => setActiveModal('lodging')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-all group">
+              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 mb-2 group-hover:scale-110 transition-transform">
+                <Home size={20} />
               </div>
-              <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">Alistair Parrington's 4 Weeks Around Sri Lanka</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-2">Popular guide by a Wanderlog community member</p>
-              <div className="flex items-center space-x-2">
-                <img src="https://picsum.photos/seed/author1/24/24" alt="Author" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
-                <span className="text-xs text-gray-600">Alistair Parrington</span>
+              <span className="text-xs font-medium text-gray-600">Lodging</span>
+            </button>
+            <button onClick={() => setActiveModal('activity')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-green-200 hover:bg-green-50 transition-all group">
+              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-2 group-hover:scale-110 transition-transform">
+                <MapPin size={20} />
               </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="w-64 flex-shrink-0 snap-start group cursor-pointer">
-              <div className="h-40 rounded-xl overflow-hidden mb-3">
-                <img src="https://picsum.photos/seed/tea/400/300" alt="Tea plantation" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
+              <span className="text-xs font-medium text-gray-600">Activity</span>
+            </button>
+            <button className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all group">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 mb-2 group-hover:scale-110 transition-transform">
+                <Paperclip size={20} />
               </div>
-              <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">jonathan perera's Hiking in Sri Lanka</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-2">Popular guide by a Wanderlog community member</p>
-              <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">J</div>
-                <span className="text-xs text-gray-600">jonathan perera</span>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="w-64 flex-shrink-0 snap-start group cursor-pointer relative">
-              <div className="h-40 rounded-xl overflow-hidden mb-3">
-                <img src="https://picsum.photos/seed/hotel/400/300" alt="Hotel room" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" referrerPolicy="no-referrer" />
-              </div>
-              <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">Search hotels with transparent pricing</h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-2">Unlike most sites, we don't sort based on commissions</p>
-              <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-orange-500">
-                  <Search size={12} />
-                </div>
-                <span className="text-xs text-gray-600">Wanderlog</span>
-              </div>
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-gray-900">
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Reservations and Budgeting Grid */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="font-semibold text-gray-900 mb-4">Reservations and attachments</h3>
-            <div className="flex justify-between items-center">
-              <button className="flex flex-col items-center space-y-2 text-gray-500 hover:text-gray-900 transition-colors group">
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <Plane size={20} />
-                </div>
-                <span className="text-xs font-medium">Flight</span>
-              </button>
-              <button className="flex flex-col items-center space-y-2 text-gray-500 hover:text-gray-900 transition-colors group">
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <Bed size={20} />
-                </div>
-                <span className="text-xs font-medium">Lodging</span>
-              </button>
-              <button className="flex flex-col items-center space-y-2 text-gray-500 hover:text-gray-900 transition-colors group">
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <Car size={20} />
-                </div>
-                <span className="text-xs font-medium">Rental car</span>
-              </button>
-              <button className="flex flex-col items-center space-y-2 text-gray-500 hover:text-gray-900 transition-colors group">
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <Utensils size={20} />
-                </div>
-                <span className="text-xs font-medium">Restaurant</span>
-              </button>
-              <button className="flex flex-col items-center space-y-2 text-gray-500 hover:text-gray-900 transition-colors group relative">
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <Paperclip size={20} />
-                </div>
-                <span className="text-xs font-medium">Attachment</span>
-                <div className="absolute top-0 right-1 w-2 h-2 rounded-full bg-orange-500 border border-white"></div>
-              </button>
-              <button className="flex flex-col items-center space-y-2 text-gray-500 hover:text-gray-900 transition-colors group">
-                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                  <MoreHorizontal size={20} />
-                </div>
-                <span className="text-xs font-medium">Other</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="col-span-1 bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <h3 className="font-semibold text-gray-900">Budgeting</h3>
-            <div>
-              <div className="text-2xl font-bold text-gray-900">RON 0.00</div>
-              <button className="text-sm font-medium text-gray-500 hover:text-gray-800 mt-1 transition-colors">View details</button>
-            </div>
+              <span className="text-xs font-medium text-gray-600">Attachment</span>
+            </button>
           </div>
         </div>
 
+        {/* Flight, Lodging and Activities reservations Section */}
+        <TripReservationsSection
+          reservations={reservations}
+          currentUser={currentUser}
+          onDelete={deleteReservation}
+          onEdit={handleEditReservation}
+        />
+
         {/* Posts Section */}
-        <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
-              <MessageSquare size={20} className="text-gray-400" />
-              <span>Notes & Ideas</span>
-            </h2>
-          </div>
 
-          <div className="space-y-6 mb-8">
-            {(posts?.length ?? 0) === 0 ? (
-              <p className="text-gray-500 text-sm italic text-center py-4">No notes yet. Add your ideas below!</p>
-            ) : (
-              posts.map(note => (
-                <div key={note.id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm relative group">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">{note.title}</h3>
-                  <p className="text-gray-600 text-lg mb-6 leading-relaxed whitespace-pre-wrap">{note.description}</p>
+        <div className="mt-12" id='notes'>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Notes & Ideas</h2>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      {/* <img src={avatar} alt={note.author} className="w-12 h-12 rounded-full object-cover" referrerPolicy="no-referrer" /> */}
-                      <div className="flex -space-x-3 px-2">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-700 shadow-sm">
-                          {note.author.charAt(0).toUpperCase()}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-900 font-medium">{note.author}</div>
-                        <div className="text-gray-500 text-sm">{formatMonthDayYear(note.created_at)}</div>
-                      </div>
-                    </div>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-8">
+            <input
+              type="text"
+              value={postTitle}
+              onChange={(e) => setPostTitle(e.target.value)}
+              placeholder="Note Title"
+              className="w-full resize-none outline-none text-gray-700 placeholder-gray-400 min-h-[30px] border-b mb-3"
+            />
+            <textarea
+              value={postDescription}
+              onChange={(e) => setPostDescription(e.target.value)}
+              placeholder="Jot down an idea, place to visit, or note..."
+              className="w-full resize-none outline-none text-gray-700 placeholder-gray-400 min-h-[100px]"
+            />
 
-                    <button
-                      onClick={() => handleAppreciate(note.id, note.hasAppreciated ? 'unlike' : 'like')}
-                      className={`flex items-center space-x-2 px-3 py-1.5 rounded-full transition-colors ${note.hasAppreciated ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
-                    >
-                      <Heart size={18} className={note.hasAppreciated ? 'fill-current' : ''} />
-                      <span className="font-medium">{note.likes_count}</span>
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => deletePost(note.id)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-
-
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Add a new note</h4>
-            <div className="space-y-3">
-              <input
-                type="text"
-                value={postTitle}
-                onChange={(e) => setPostTitle(e.target.value)}
-                placeholder="Note Title"
-                className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white font-medium"
-              />
-              <textarea
-                value={postDescription}
-                onChange={(e) => setPostDescription(e.target.value)}
-                placeholder="Jot down ideas, links, or reminders..."
-                className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-24 bg-gray-50"
-              />
-              <div className="flex justify-end">
-                <button
-                  onClick={handleAddPost}
-                  disabled={!postDescription.trim() || !postTitle.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-6 py-2 rounded-lg font-medium text-sm transition-colors"
-                >
-                  Post Note
-                </button>
+            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-50">
+              <div className="flex space-x-2 text-gray-400">
+                <button className="p-2 hover:bg-gray-50 rounded-full transition-colors"><Paperclip size={18} /></button>
               </div>
+              <button
+                onClick={handleAddPost}
+                disabled={!postDescription.trim()}
+                className="bg-teal-600 hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-full font-medium transition-colors"
+              >
+                Post
+              </button>
             </div>
           </div>
 
+          <div className="space-y-6">
+            {posts.map(post => (
+              <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
+                      {post.author.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">{post.author}</h3>
+                      <span className="text-xs text-gray-500">{new Date(post.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  {currentUser && post.author == currentUser.username && (
+                    <button
+                      onClick={() => deletePost(post.id)}
+                      className="text-gray-400 hover:text-red-500 transition-colors p-2"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </div>
+                <h4 className="text-lg font-bold text-gray-900 mb-2">{post.title}</h4>
+                <p className="text-gray-700 whitespace-pre-line leading-relaxed">{post.description}</p>
 
-        </section>
+                <div className="mt-6 pt-4 border-t border-gray-50 flex items-center">
+                  <button
+                    onClick={() => handleAppreciate(post.id, post.hasAppreciated ? 'unlike' : 'like')}
+                    className={`flex items-center space-x-2 text-sm font-medium transition-colors ${post.hasAppreciated ? 'text-teal-600' : 'text-gray-500 hover:text-teal-600'}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={post.hasAppreciated ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" /></svg>
+                    <span>{post.likes_count} {post.likes_count === 1 ? 'Appreciation' : 'Appreciations'}</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
       </div>
+
+      {/* Modals */}
+      <FlightModal
+        isOpen={activeModal === 'flight'}
+        onClose={closeModal}
+        onSave={(data) => handleSaveReservation('flight', data)}
+        initialData={editingReservation?.type === 'flight' ? editingReservation : null}
+      />
+      <LodgingModal
+        isOpen={activeModal === 'lodging'}
+        onClose={closeModal}
+        onSave={(data) => handleSaveReservation('lodging', data)}
+        initialData={editingReservation?.type === 'lodging' ? editingReservation : null}
+      />
+      <ActivityModal
+        isOpen={activeModal === 'activity'}
+        onClose={closeModal}
+        onSave={(data) => handleSaveReservation('activity', data)}
+        initialData={editingReservation?.type === 'activity' ? editingReservation : null}
+      />
+
     </div>
   );
 }
