@@ -178,7 +178,20 @@ function Trip() {
     }
 
     const getFlights = async () => {
-
+        try{
+            const res = await api.get(`/api/flights/${id}/`)
+            if(res.status === 200){
+                const flightWithFullData = await Promise.all(
+                    res.data.map(async (f) => {
+                        const username = await getUser(f.author)
+                        return {...f, type:'flight', author:username}
+                    })
+                )
+                setReservations(flightWithFullData)
+            }
+        } catch(error) {
+            alert(error)
+        }
     }
   
     const getLodgings = async () => {
@@ -189,8 +202,20 @@ function Trip() {
   
     }
 
-    const addReservation = async () => {
-
+    const addReservation = async (type, data) => {
+        try{
+            console.log(data)
+            const res = await api.post(`/api/flights/${trip.id}/`, data)
+            if(res.status === 201){
+                const newReservation = {
+                    ...data,
+                    type,
+                };
+                setReservations([...reservations, newReservation]);
+            }
+        } catch(error){
+            alert(error)
+        }
     }
   
     const handleEditReservation = async (reservation, data) => {

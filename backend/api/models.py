@@ -1,4 +1,6 @@
+from datetime import timezone
 from tkinter import CASCADE
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db import models
 import hashlib
@@ -71,14 +73,16 @@ class Likes(models.Model):
 
 class Reservation(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, default=0)
 
     notes = models.TextField(blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True)
-    end_date = models.DateField(blank=True, null=True)
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
 
-    location = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
 
 class FlightReservation(Reservation):
     airline = models.CharField(max_length=255, blank=True, null=True)
@@ -89,10 +93,6 @@ class FlightReservation(Reservation):
 
 class LodgingReservation(Reservation):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-
-    check_in = models.DateTimeField(blank=True, null=True)
-    check_out = models.DateTimeField(blank=True, null=True)
-
     link = models.CharField(max_length=255, blank=True, null=True)
 
 class Activity(Reservation):

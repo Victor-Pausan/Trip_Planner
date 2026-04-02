@@ -63,7 +63,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'description', 'author', 'created_at', 'likes_count', 'trip', "title"]
-        read_only_fields = ['created_at', 'author', 'trip','likes_count']
+        read_only_fields = ['created_at', 'author', 'trip', 'likes_count']
         extra_kwargs = {
             'title': {'required': False, 'allow_null': True}
         }
@@ -85,6 +85,7 @@ class FlightReservationSerializer(serializers.ModelSerializer):
                   'departure_airport', 'arrival_airport',
                   'start_date', 'end_date',
                   'notes', 'created_at']
+        read_only_fields = ['author', 'trip', 'created_at']
         extra_kwargs = {
             'airline': {'required': False, 'allow_null': True},
             'flight_code': {'required': False, 'allow_null': True},
@@ -98,12 +99,13 @@ class LodgingReservationSerializer(serializers.Serializer):
         model = LodgingReservation
         fields = ['id', 'author',
                   'place', 'link',
-                  'check_in', 'check_out',
+                  'start_date', 'end_date',
                   'notes', 'created_at']
+        read_only_fields = ['author', 'trip', 'created_at']
         extra_kwargs = {
             'link': {'required': False, 'allow_null': True},
-            'check_in': {'required': False, 'allow_null': True},
-            'check_out': {'required': False, 'allow_null': True},
+            'start_date': {'required': False, 'allow_null': True},
+            'end_date': {'required': False, 'allow_null': True},
             'notes': {'required': False, 'allow_null': True}
         }
 
@@ -114,6 +116,7 @@ class ActivitySerializer(serializers.Serializer):
                   'place',
                   'start_date', 'end_date',
                   'notes', 'created_at']
+        read_only_fields = ['author', 'trip', 'created_at']
         extra_kwargs = {
             'start_date': {'required': False, 'allow_null': True},
             'notes': {'required': False, 'allow_null': True}

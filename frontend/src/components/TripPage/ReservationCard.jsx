@@ -16,7 +16,7 @@ const formatJustDate = (dateString) => {
 
 export const ReservationCard = ({ reservation, currentUser, onDelete, onEdit }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const isAuthor = reservation.author === currentUser;
+  const isAuthor = reservation.author === currentUser.username;
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);

@@ -28,4 +28,6 @@ urlpatterns = [
     path('post/liked/<int:post_id>/', views.IsPostLiked.as_view(), name='is-liked-by-user'),
     #--- places ---
     path('place/<slug:pk>/', views.GetPlace.as_view(), name='get-place-info'),
+    #--- reservations ---
+    path('flights/<int:trip_id>/', views.CreateFlight.as_view(), name='create-flight'),
 ]

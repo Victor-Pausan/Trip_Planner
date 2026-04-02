@@ -53,14 +53,9 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
     if (editingReservation) {
       editReservation(editReservation, data)
     }
-    //  else {
-    //   const newReservation = {
-    //     ...data,
-    //     type,
-    //     author: currentUser
-    //   };
-    //   setReservations([...reservations, newReservation]);
-    // }
+     else {
+      addReservation(type, data)
+    }
     closeModal();
   };
 

@@ -88,13 +88,13 @@ export const FlightModal = ({ isOpen, onClose, onSave, initialData }) => {
 
 export const LodgingModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [formData, setFormData] = useState({
-        place: '', link: '', check_in: '', check_out: '', notes: ''
+        place: '', link: '', stard_date: '', end_date: '', notes: ''
     });
 
     useEffect(() => {
         if (isOpen) {
             if (initialData) setFormData(initialData);
-            else setFormData({ place: '', link: '', check_in: '', check_out: '', notes: '' });
+            else setFormData({ place: '', link: '', start_date: '', end_date: '', notes: '' });
         }
     }, [initialData, isOpen]);
 
