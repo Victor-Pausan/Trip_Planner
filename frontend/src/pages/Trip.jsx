@@ -1,5 +1,6 @@
 import { useParams, } from "react-router-dom"
 import { useEffect, useState } from "react"
+import { useUser } from "../contexts/UserContext"
 import api from "../api"
 import PostCard from "../components/PostCard"
 import Navbar from "../components/Navbar"
@@ -9,6 +10,7 @@ import Sidebar from "../components/TripPage/SideBar"
 
 function Trip() {
     const { id } = useParams()
+    const { user } = useUser()
     const [message, setMessage] = useState("")
     const [trip, setTrip] = useState("")
     const [posts, setPosts] = useState([])
@@ -179,7 +181,7 @@ function Trip() {
 
     const getFlights = async () => {
         try{
-            const res = await api.get(`/api/flights/${id}/`)
+            const res = await api.get(`/api/flight/${id}/`)
             if(res.status === 200){
                 const flightWithFullData = await Promise.all(
                     res.data.map(async (f) => {
@@ -187,7 +189,7 @@ function Trip() {
                         return {...f, type:'flight', author:username}
                     })
                 )
-                setReservations(flightWithFullData)
+                setReservations((reservs) => [...reservs, ...flightWithFullData])
             }
         } catch(error) {
             alert(error)
@@ -195,23 +197,89 @@ function Trip() {
     }
   
     const getLodgings = async () => {
-  
+        try{
+            const res = await api.get(`/api/lodging/${id}/`)
+            if(res.status === 200){
+                const lodgingWithFullData = await Promise.all(
+                    res.data.map(async (f) => {
+                        var username = await getUser(f.author)
+                        if(f.place){
+                            const res2 = await api.get(`/api/place/${f.place}/`)
+                            if(res2.status === 200){
+                                const latitude = res2.data.latitude
+                                const longitude = res2.data.longitude
+                                const placeName = res2.data.name
+                                const photoURI = res2.data.photoURI
+                                return {...f, type:'lodging', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI}
+                            }
+                        }
+                        return {...f, type:'lodging', author:username}
+                    })
+                )
+                setReservations((reservs) => [...reservs, ...lodgingWithFullData])
+            }
+        } catch(error) {
+            alert(error)
+        }
     }
   
     const getActivities = async () => {
-  
+        try{
+            const res = await api.get(`/api/activity/${id}/`)
+            if(res.status === 200){
+                const activityWithFullData = await Promise.all(
+                    res.data.map(async (f) => {
+                        var username = await getUser(f.author)
+                        if(f.place){
+                            const res2 = await api.get(`/api/place/${f.place}/`)
+                            if(res2.status === 200){
+                                const latitude = res2.data.latitude
+                                const longitude = res2.data.longitude
+                                const placeName = res2.data.name
+                                const photoURI = res2.data.photoURI
+                                return {...f, type:'activity', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI}
+                            }
+                        }
+                        return {...f, type:'activity', author:username}
+                    })
+                )
+                setReservations((reservs) => [...reservs, ...activityWithFullData])
+            }
+        } catch(error) {
+            alert(error)
+        }
     }
 
     const addReservation = async (type, data) => {
         try{
-            console.log(data)
-            const res = await api.post(`/api/flights/${trip.id}/`, data)
+            const res = await api.post(`/api/${type}/${trip.id}/`, data)
             if(res.status === 201){
-                const newReservation = {
-                    ...data,
-                    type,
-                };
-                setReservations([...reservations, newReservation]);
+                res.data.author = user.username
+                var newReservation = {}
+                if(res.data.place){
+                    const res2 = await api.get(`/api/place/${res.data.place}/`)
+                    if(res2.status === 200){
+                        const latitude = res2.data.latitude
+                        const longitude = res2.data.longitude
+                        const placeName = res2.data.name
+                        const photoURI = res2.data.photoURI
+                        newReservation = {
+                            ...res.data,
+                            latitude:latitude, 
+                            longitude:longitude, 
+                            placeName:placeName,
+                            photoURI:photoURI,
+                            type
+                        };
+                    }
+                } else{
+                    newReservation = {
+                        ...res.data,
+                        type,
+                    };
+                }
+                
+                setReservations((reservs) => [...reservs, newReservation]);
             }
         } catch(error){
             alert(error)
@@ -219,13 +287,27 @@ function Trip() {
     }
   
     const handleEditReservation = async (reservation, data) => {
-        setReservations(reservations.map(r => 
-            (r.id === reservation.id) && (r.type === reservation.type) ? { ...data, id: r.id, type, author: r.author } : r
-        ));
+        try{
+            const res = await api.put(`/api/${reservation.type}/update/${reservation.id}/`, data)
+            if(res.status === 200){
+                setReservations(reservations.map(r => 
+                    (r.id === reservation.id) && (r.type === reservation.type) ? { ...data } : r
+                ));
+            }
+        }catch(error){
+            alert(error)
+        }
     }
   
     const handleDeleteReservation = async (id, type) => {
-        setReservations(reservations.filter(r => (r.id !== id) || (r.type != type)));
+        try{
+            const res = await api.delete(`/api/${type}/delete/${id}/`)
+            if(res.status === 204){
+                setReservations(reservations.filter(r => (r.id !== id) || (r.type != type)));
+            }
+        }catch(error){
+            alert(error)
+        }
     }
 
     return (
@@ -248,8 +330,8 @@ function Trip() {
                             onTitleSave={updateTripTitle}
                             reservations={reservations}
                             addReservation={addReservation}
-                            handleDeleteReservation={handleDeleteReservation}
-                            handleEditReservation={handleEditReservation}
+                            deleteReservation={handleDeleteReservation}
+                            editReservation={handleEditReservation}
                         />
                             
                             
@@ -258,7 +340,7 @@ function Trip() {
 
                 {/* Right Side (Map) */}
                 <div className="flex-1 h-full bg-blue-100 relative hidden md:block">
-                    {mapReadyToRender ? <MapArea location={placeLocation}/> : '' }
+                    {mapReadyToRender ? <MapArea mainLocation={placeLocation} reservations={reservations}/> : '' }
                 </div>
             </div>
         </>

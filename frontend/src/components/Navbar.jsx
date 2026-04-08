@@ -50,12 +50,6 @@ const Navbar = () => {
                         <button onClick={goToGroup} className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
                             My Groups
                         </button>
-                        <a href="/destinations" className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
-                            Destinations
-                        </a>
-                        <a href="/explore" className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
-                            Explore
-                        </a>
                     </div>
                 </div>
 

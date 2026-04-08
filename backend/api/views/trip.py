@@ -100,9 +100,9 @@ class CreateTrip(generics.CreateAPIView):
             if not Place.objects.filter(id=place_id):
                 place_data = get_place_data(place_id, GOOGLE_MAPS_API_KEY)
                 if place_data:
-                    photo_URI = place_data['photoURI']
-                    latitude = float(place_data['location']['latitude'])
-                    longitude = float(place_data['location']['longitude'])
+                    photo_URI = place_data['photoURI'] if 'photoURI' in place_data else None
+                    latitude = float(place_data['location']['latitude']) if 'location' in place_data else None
+                    longitude = float(place_data['location']['longitude']) if 'location' in place_data else None
                     place = Place.objects.create(id=place_id, name=place_name, photoURI=photo_URI, latitude=latitude,
                                                  longitude=longitude)
                 else:

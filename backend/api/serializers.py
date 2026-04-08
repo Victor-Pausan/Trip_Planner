@@ -33,6 +33,7 @@ class GroupTitleSerializer(serializers.ModelSerializer):
 
         
 class TripSerializer(serializers.ModelSerializer):
+    group = serializers.SlugRelatedField(read_only=True, slug_field='slug')
     class Meta:
         model = Trip
         fields = ['id', 'title', 'created_at', 'description', 'group', 'place' ,'start_date', "end_date"]
@@ -94,14 +95,25 @@ class FlightReservationSerializer(serializers.ModelSerializer):
             'notes': {'required': False, 'allow_null': True}
         }
 
-class LodgingReservationSerializer(serializers.Serializer):
+    def to_internal_value(self, data):
+        """
+        Treat empty strings for optional date fields as None so DRF does not
+        try to parse them as dates and return a validation error.
+        """
+        data = data.copy()
+        for field in ("start_date", "end_date"):
+            if data.get(field) == "":
+                data[field] = None
+        return super().to_internal_value(data)
+
+class LodgingReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LodgingReservation
         fields = ['id', 'author',
                   'place', 'link',
                   'start_date', 'end_date',
                   'notes', 'created_at']
-        read_only_fields = ['author', 'trip', 'created_at']
+        read_only_fields = ['author', 'trip', 'created_at', 'place']
         extra_kwargs = {
             'link': {'required': False, 'allow_null': True},
             'start_date': {'required': False, 'allow_null': True},
@@ -109,15 +121,37 @@ class LodgingReservationSerializer(serializers.Serializer):
             'notes': {'required': False, 'allow_null': True}
         }
 
-class ActivitySerializer(serializers.Serializer):
+    def to_internal_value(self, data):
+        """
+        Treat empty strings for optional date fields as None so DRF does not
+        try to parse them as dates and return a validation error.
+        """
+        data = data.copy()
+        for field in ("start_date", "end_date"):
+            if data.get(field) == "":
+                data[field] = None
+        return super().to_internal_value(data)
+
+class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = ['id', 'author',
                   'place',
                   'start_date', 'end_date',
                   'notes', 'created_at']
-        read_only_fields = ['author', 'trip', 'created_at']
+        read_only_fields = ['author', 'trip', 'created_at', 'place']
         extra_kwargs = {
-            'start_date': {'required': False, 'allow_null': True},
+            'end_date': {'required': False, 'allow_null': True},
             'notes': {'required': False, 'allow_null': True}
         }
+
+    def to_internal_value(self, data):
+        """
+        Treat empty strings for optional date fields as None so DRF does not
+        try to parse them as dates and return a validation error.
+        """
+        data = data.copy()
+        for field in ("start_date", "end_date"):
+            if data.get(field) == "":
+                data[field] = None
+        return super().to_internal_value(data)

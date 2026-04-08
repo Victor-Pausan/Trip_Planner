@@ -5,9 +5,28 @@ import Navbar from "../components/Navbar";
 import { Link } from 'react-router-dom';
 import { Users, Trash2, ArrowRight, Plus } from 'lucide-react';
 
+const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
+    if (isOpen === '') return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
+                <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Reservation</h3>
+                    <p className="text-gray-600 text-sm">Are you sure you want to delete this group? This action cannot be undone.</p>
+                </div>
+                <div className="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50">
+                    <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                    <button onClick={onConfirm} className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 function GroupList() {
     const [groups, setGroups] = useState([]);
     const [newGroupTitle, setNewGroupTitle] = useState("");
+    const [activeModal, setActiveModal] = useState('')
 
     useEffect(() => {
         fetchGroups();
@@ -97,7 +116,7 @@ function GroupList() {
                                     Access Group <ArrowRight size={16} />
                                 </Link>
                                 <button
-                                    onClick={() => deleteGroup(group.id)}
+                                    onClick={() => setActiveModal(group.id)}
                                     className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50"
                                     title="Delete Group"
                                 >
@@ -108,6 +127,12 @@ function GroupList() {
                     ))}
                 </div>
             </div>
+
+            <DeleteModal 
+                isOpen={activeModal}
+                onClose={() => setActiveModal('')}
+                onConfirm={() => {deleteGroup(activeModal); setActiveModal('')}}
+            />
         </>
     );
 }

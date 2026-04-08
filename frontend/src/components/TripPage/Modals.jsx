@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import GooglePlacesAutosugest from '../PlacesAPI/GooglePlacesAutosugest'
 
 const Modal = ({ isOpen, onClose, title, children, onSave }) => {
     if (!isOpen) return null;
@@ -88,13 +89,13 @@ export const FlightModal = ({ isOpen, onClose, onSave, initialData }) => {
 
 export const LodgingModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [formData, setFormData] = useState({
-        place: '', link: '', stard_date: '', end_date: '', notes: ''
+        locationName: '', locationID: '', link: '', start_date: '', end_date: '', notes: ''
     });
 
     useEffect(() => {
         if (isOpen) {
             if (initialData) setFormData(initialData);
-            else setFormData({ place: '', link: '', start_date: '', end_date: '', notes: '' });
+            else setFormData({locationName: '', locationID: '', link: '', start_date: '', end_date: '', notes: '' });
         }
     }, [initialData, isOpen]);
 
@@ -108,7 +109,13 @@ export const LodgingModal = ({ isOpen, onClose, onSave, initialData }) => {
             <div className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Place Name</label>
-                    <input type="text" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.place} onChange={e => setFormData({ ...formData, place: e.target.value })} placeholder="e.g. Hotel Barcelona Center" />
+                    <div className="relative">
+                        <GooglePlacesAutosugest
+                            value={formData.locationName}
+                            onChange={(locationName, locationID) => { setFormData({ ...formData, locationName: locationName, locationID: locationID }) }}
+                            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                        />
+                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Booking Link</label>
@@ -117,11 +124,11 @@ export const LodgingModal = ({ isOpen, onClose, onSave, initialData }) => {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Check-in Date</label>
-                        <input type="date" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.check_in} onChange={e => setFormData({ ...formData, check_in: e.target.value })} />
+                        <input type="datetime-local" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.start} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Check-out Date</label>
-                        <input type="date" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.check_out} onChange={e => setFormData({ ...formData, check_out: e.target.value })} />
+                        <input type="datetime-local" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.end_date} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
                     </div>
                 </div>
                 <div>
@@ -135,13 +142,13 @@ export const LodgingModal = ({ isOpen, onClose, onSave, initialData }) => {
 
 export const ActivityModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [formData, setFormData] = useState({
-        place: '', start_date: '', end_date: '', notes: ''
+        locationName: '', locationID: '', start_date: '', end_date: '', notes: ''
     });
 
     useEffect(() => {
         if (isOpen) {
             if (initialData) setFormData(initialData);
-            else setFormData({ place: '', start_date: '', end_date: '', notes: '' });
+            else setFormData({ locationName: '', locationID: '', end_date: '', notes: '' });
         }
     }, [initialData, isOpen]);
 
@@ -155,7 +162,13 @@ export const ActivityModal = ({ isOpen, onClose, onSave, initialData }) => {
             <div className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Activity Name / Place</label>
-                    <input type="text" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.place} onChange={e => setFormData({ ...formData, place: e.target.value })} placeholder="e.g. Sagrada Familia" />
+                    <div className="relative">
+                        <GooglePlacesAutosugest
+                            value={formData.locationName}
+                            onChange={(locationName, locationID) => { setFormData({ ...formData, locationName: locationName, locationID: locationID }) }}
+                            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                        />
+                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div>

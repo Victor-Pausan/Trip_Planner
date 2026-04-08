@@ -67,7 +67,7 @@ export const ReservationCard = ({ reservation, currentUser, onDelete, onEdit }) 
             </div>
             <div className="flex-1">
               <div className="flex justify-between items-start">
-                <h4 className="font-semibold text-gray-900">{reservation.place}</h4>
+                <h4 className="font-semibold text-gray-900">{reservation.placeName}</h4>
                 {reservation.link && (
                   <a href={reservation.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
                     View booking
@@ -77,11 +77,11 @@ export const ReservationCard = ({ reservation, currentUser, onDelete, onEdit }) 
               <div className="mt-3 flex gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                 <div>
                   <span className="block text-xs text-gray-400 uppercase tracking-wider">Check-in</span>
-                  {formatJustDate(reservation.check_in)}
+                  {formatDate(reservation.start_date)}
                 </div>
                 <div>
                   <span className="block text-xs text-gray-400 uppercase tracking-wider">Check-out</span>
-                  {formatJustDate(reservation.check_out)}
+                  {formatDate(reservation.end_date)}
                 </div>
               </div>
               {reservation.notes && <p className="mt-2 text-sm text-gray-600 italic">"{reservation.notes}"</p>}
@@ -95,7 +95,7 @@ export const ReservationCard = ({ reservation, currentUser, onDelete, onEdit }) 
               <MapPin size={20} />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-gray-900">{reservation.place}</h4>
+              <h4 className="font-semibold text-gray-900">{reservation.placeName}</h4>
               <div className="mt-3 flex gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                 <div>
                   <span className="block text-xs text-gray-400 uppercase tracking-wider">Date & Time</span>

@@ -39,7 +39,7 @@ export const TripReservationsSection = ({ reservations, currentUser, onDelete, o
             <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
               <Home size={16} />
             </div>
-            <h3 className="text-lg font-bold text-gray-900">Lodging</h3>
+            <h3 className="text-lg font-bold text-gray-900">Lodgings</h3>
           </div>
           <div className="grid gap-4">
             {lodgings.map(res => (

@@ -29,5 +29,15 @@ urlpatterns = [
     #--- places ---
     path('place/<slug:pk>/', views.GetPlace.as_view(), name='get-place-info'),
     #--- reservations ---
-    path('flights/<int:trip_id>/', views.CreateFlight.as_view(), name='create-flight'),
+    path('flight/<int:trip_id>/', views.CreateFlight.as_view(), name='create-flight'),
+    path('flight/update/<int:pk>/', views.UpdateFlight.as_view(), name='update-flight'),
+    path('flight/delete/<int:pk>/', views.DeleteFlight.as_view(), name='delete-flight'),
+
+    path('lodging/<int:trip_id>/', views.CreateLodging.as_view(), name='create-flight'),
+    path('lodging/update/<int:pk>/', views.UpdateLodging.as_view(), name='update-flight'),
+    path('lodging/delete/<int:pk>/', views.DeleteLodging.as_view(), name='delete-flight'),
+
+    path('activity/<int:trip_id>/', views.CreateActivity.as_view(), name='create-flight'),
+    path('activity/update/<int:pk>/', views.UpdateActivity.as_view(), name='update-flight'),
+    path('activity/delete/<int:pk>/', views.DeleteActivity.as_view(), name='delete-flight'),
 ]

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Heart, ChevronDown, Search, ChevronRight, Plane, Bed, Car, Utensils, Paperclip, MoreHorizontal, Calendar, Users, Pencil, Plus, MessageSquare, Home, MapPin, Trash2 } from 'lucide-react';
+import { Heart, ChevronDown, Search, Copy, Check, ChevronRight, UserPlus, Plane, Bed, Car, Utensils, Paperclip, MoreHorizontal, Calendar, Users, Pencil, Plus, MessageSquare, Home, MapPin, Trash2, UserStar } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext'
 import { TripReservationsSection } from './TripsReservationsSection';
-import { FlightModal, LodgingModal, ActivityModal } from './Modals';
+import { FlightModal, LodgingModal, ActivityModal, DeleteModal } from './Modals';
 
 function formatMonthDayYear(dateInput) {
   if (!dateInput) return '';
@@ -28,11 +28,14 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [copied, setCopied] = useState(false)
+  const [postToDelete, setPostToDelete] = useState('')
 
   const { user: currentUser } = useUser()
 
   const [activeModal, setActiveModal] = useState(null);
-  const [editingReservation, setEditingReservation] = useState(null);
+  const [isInviteOpen, setIsInviteOpen] = useState(false)
+  const [currentEditingReservation, setCurrentEditingReservation] = useState(null);
 
   useEffect(() => {
     if (!isEditingTitle) setTitle(trip?.title ?? '');
@@ -49,24 +52,36 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
     }
   };
 
+  const handleDeletePost = (id) => {
+    deletePost(id)
+    closeModal()
+    setPostToDelete('')
+  }
+
   const handleSaveReservation = (type, data) => {
-    if (editingReservation) {
-      editReservation(editReservation, data)
+    if (currentEditingReservation) {
+      editReservation(currentEditingReservation, data)
     }
-     else {
+    else {
       addReservation(type, data)
     }
     closeModal();
   };
 
   const handleEditReservation = (reservation) => {
-    setEditingReservation(reservation);
+    setCurrentEditingReservation(reservation);
     setActiveModal(reservation.type);
   };
 
   const closeModal = () => {
     setActiveModal(null);
-    setEditingReservation(null);
+    setCurrentEditingReservation(null);
+  };
+
+  const handleCopy = (inviteLink) => {
+    navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -133,9 +148,11 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
 
             <div className="flex items-center space-x-2">
               <div className="flex -space-x-2">
-                <img src="https://picsum.photos/seed/user1/32/32" alt="User" className="w-8 h-8 rounded-full border-2 border-white" referrerPolicy="no-referrer" />
+                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
+                  {currentUser?.username.charAt(0)}
+                </div>
               </div>
-              <button className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={() => setIsInviteOpen(true)} className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors">
                 <Plus size={16} />
               </button>
             </div>
@@ -233,7 +250,7 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
                   </div>
                   {currentUser && post.author == currentUser.username && (
                     <button
-                      onClick={() => deletePost(post.id)}
+                      onClick={() => {setActiveModal('post'); setPostToDelete(post.id)}}
                       className="text-gray-400 hover:text-red-500 transition-colors p-2"
                     >
                       <Trash2 size={18} />
@@ -264,20 +281,62 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
         isOpen={activeModal === 'flight'}
         onClose={closeModal}
         onSave={(data) => handleSaveReservation('flight', data)}
-        initialData={editingReservation?.type === 'flight' ? editingReservation : null}
+        initialData={currentEditingReservation?.type === 'flight' ? currentEditingReservation : null}
       />
       <LodgingModal
         isOpen={activeModal === 'lodging'}
         onClose={closeModal}
         onSave={(data) => handleSaveReservation('lodging', data)}
-        initialData={editingReservation?.type === 'lodging' ? editingReservation : null}
+        initialData={currentEditingReservation?.type === 'lodging' ? currentEditingReservation : null}
       />
       <ActivityModal
         isOpen={activeModal === 'activity'}
         onClose={closeModal}
         onSave={(data) => handleSaveReservation('activity', data)}
-        initialData={editingReservation?.type === 'activity' ? editingReservation : null}
+        initialData={currentEditingReservation?.type === 'activity' ? currentEditingReservation : null}
       />
+
+      <DeleteModal
+        isOpen={activeModal === 'post'}
+        onClose={closeModal}
+        onConfirm={() => {handleDeletePost(postToDelete)}}
+      />
+
+      {/* Invite Modal */}
+      {isInviteOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
+            <button
+              onClick={() => setIsInviteOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2"
+            >
+              ✕
+            </button>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-500">
+                <UserPlus size={32} />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800">Invite Members</h2>
+              <p className="text-gray-500 text-sm mt-2">Share this link with friends to invite them to {trip.title}.</p>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-1 flex items-center">
+              <input
+                type="text"
+                readOnly
+                value={'http://' + window.location.host + `/group/join/${trip.group}`}
+                className="bg-transparent border-none focus:ring-0 text-sm text-gray-600 w-full px-3 outline-none"
+              />
+              <button
+                onClick={() => handleCopy('http://' + window.location.host + `/group/join/${trip.group}`)}
+                className="bg-white border border-gray-200 shadow-sm text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors whitespace-nowrap"
+              >
+                {copied ? <><Check size={16} className="text-green-500" /> Copied</> : <><Copy size={16} /> Copy</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

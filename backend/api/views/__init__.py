@@ -4,3 +4,5 @@ from .trip import *
 from .post import *
 from .place import *
 from .Reservations.flight import *
+from .Reservations.lodging import *
+from .Reservations.activity import *
