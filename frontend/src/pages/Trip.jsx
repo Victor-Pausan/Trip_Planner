@@ -16,6 +16,8 @@ function Trip() {
     const [posts, setPosts] = useState([])
     const [placeLocation, setPlaceLocation] = useState(null)
     const [mapReadyToRender, setMapReadyToRender] = useState(false)
+    const [userRole , setUserRole] = useState('member')
+    const [joinRequests, setJoinRequests] = useState([])
 
     const [reservations, setReservations] = useState([]);
 
@@ -56,6 +58,7 @@ function Trip() {
             const res = await api.get(`/api/trip/get/${id}/`)
             if (res.status === 200) {
                 await getPlaceData(res.data.place)
+                await getUserRole(res.data.group)
                 setTrip(res.data)
             } else {
                 alert("Couldn't get trip.")
@@ -309,6 +312,39 @@ function Trip() {
             alert(error)
         }
     }
+
+    const getUserRole = async (slug) => {
+        try{    
+            const res = await api.get(`/api/groups/token/user_role/${slug}/`)
+            if(res.status === 200){
+                setUserRole(res.data[0].role);
+                if(res.data[0].role == "admin")
+                    await getJoinRequests(slug)
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
+
+    const getJoinRequests = async (slug) => {
+        try{
+            const res = await api.get(`/api/groups/token/process/${slug}/`)
+            if(res.status === 200){
+                if(res.data.length != 0){
+                    const joinRequests = await Promise.all(
+                        res.data.map(async (joinRequest) => {
+                            const user = await getUser(joinRequest.user)
+                            return {...joinRequest, user:user}
+                        })
+                    )
+                    setJoinRequests(joinRequests)
+                }
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
+    
 
     return (
         <>

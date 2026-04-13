@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Group, Place, Trip, Post, FlightReservation, LodgingReservation, Activity
+from .models import Group, Place, Trip, Post, FlightReservation, LodgingReservation, Activity, GroupJoinRequest, \
+    GroupMembership
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -17,7 +18,12 @@ class UsernameSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username']
-    
+
+class UserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupMembership
+        fields = ['role']
+        read_only_fields = ['role']
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,12 +31,16 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'users', 'created_at', 'slug']
         read_only_fields = ['users', 'slug', 'created_at']
 
-        
 class GroupTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['title']
 
+class GroupJoinRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupJoinRequest
+        fields = ['id', 'user']
+        read_only_fields = ['user']
         
 class TripSerializer(serializers.ModelSerializer):
     group = serializers.SlugRelatedField(read_only=True, slug_field='slug')

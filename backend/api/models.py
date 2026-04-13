@@ -6,10 +6,11 @@ from django.db import models
 import hashlib
 
 class Group(models.Model):
-    users = models.ManyToManyField(User, related_name='trip_groups')
+    users = models.ManyToManyField(User, through='GroupMembership', related_name='trip_groups')
     title = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True)
+    max_members = models.IntegerField(default=50)
     
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -27,6 +28,23 @@ class Group(models.Model):
 
     def __str__(self):
         return self.title
+
+class GroupJoinRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+
+class GroupMembership(models.Model):
+    ROLE_CHOICES = [
+        ('member', 'Member'),
+        ('admin', 'Admin'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='member')
+
+    class Meta:
+        unique_together = ('user', 'group')
 
 class Place(models.Model):
     id = models.SlugField(unique=True, primary_key=True)

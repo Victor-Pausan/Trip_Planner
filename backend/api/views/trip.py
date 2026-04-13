@@ -1,7 +1,7 @@
 import random
 import requests
 
-from ..models import Trip, Group, Place
+from ..models import Trip, Group, Place, GroupMembership
 
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -90,7 +90,7 @@ class CreateTrip(generics.CreateAPIView):
             group_id = self.request.data.get("group")
             if group_id == "" or group_id == None:
                 group = Group.objects.create(title=f"Group for {self.request.data.get("locationName")}")
-                group.users.add(user)
+                GroupMembership.objects.create(group=group, user=self.request.user, role='admin')
             else:
                 group = Group.objects.get(id=self.request.data.get("group"), users__in=[user])
 

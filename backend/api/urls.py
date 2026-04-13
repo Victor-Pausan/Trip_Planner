@@ -9,11 +9,14 @@ urlpatterns = [
     path('groups/', views.CreateGroup.as_view(), name='create-group'),
     path('groups/<slug:slug>/', views.GetGroup.as_view(), name='get-group'),
     path('groups/delete/<int:pk>/', views.DeleteGroup.as_view(), name='delete-group'),
+    path('groups/delete/join_request/<int:request_id>/', views.DeleteJoinGroupRequest.as_view(), name='delete-group-join-request'),
     path('groups/members/<slug:group_slug>/', views.GetUserByGroup.as_view(), name='get-group-members'),
+    path ('groups/add/user/<int:request_id>/', views.AddUserToGroup.as_view(), name='add-user-to-group'),
     path('groups/update/title/<int:pk>/', views.UpdateGroupTitle.as_view(), name='update-group-title'),
     #-- group invites --
     path('groups/token/<slug:slug>/', views.GetGroupByToken.as_view(), name='get-group-by-token'),
-    path('groups/token/process/<slug:slug>/', views.AddUserToGroup.as_view(), name='add-user-to-group'),
+    path('groups/token/user_role/<slug:slug>/', views.GetUserRole.as_view(), name='get-user-role'),
+    path('groups/token/process/<slug:slug>/', views.AddUserToGroupJoinRequest.as_view(), name='add-user-to-group-join-request'),
     #--- trips ---
     path('trip/create/', views.CreateTrip.as_view(), name='create-trip'),
     path('trips/user/', views.GetAllTripsOfUser.as_view(), name='get-trips-of-user'),

@@ -336,6 +336,8 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
             </div>
           </div>
         </div>
+
+        
       )}
 
     </div>

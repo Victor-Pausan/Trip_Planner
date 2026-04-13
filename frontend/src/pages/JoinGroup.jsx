@@ -7,6 +7,7 @@ import Navbar from "../components/Navbar"
 function GroupJoinForm() {
     const { token } = useParams()
     const [title, setTitle] = useState("")
+    const [message, setMesssage] = useState('')
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -18,8 +19,6 @@ function GroupJoinForm() {
             const res = await api.get(`/api/groups/token/${token}/`)
             if (res.status === 200) {
                 setTitle(res.data.title)
-            } else {
-                alert("404")
             }
         } catch (error) {
             alert(error)
@@ -28,15 +27,16 @@ function GroupJoinForm() {
 
     const processToken = async (e) => {
         e.preventDefault()
-
         try {
-            const res = await api.patch(`/api/groups/token/process/${token}/`)
-            if (res.status === 200) {
-                console.log(res.data);
-                navigate(`/group/${res.data.group.slug}`, { state: res.data.message })
+            const res = await api.post(`/api/groups/token/process/${token}/`)
+            if (res.status === 201) {
+                setMesssage("Success")
+                setTimeout(() => {
+                    navigate('/')
+                }, 3000)
             }
         } catch (error) {
-            alert(error)
+            setMesssage("Error")
         }
     }
 
@@ -61,12 +61,22 @@ function GroupJoinForm() {
                                         py-10 px-10 rounded-xl shadow-lg transition-all 
                                         duration-200 mt-4 flex items-center justify-center gap-2
                                         hover:shadow-xl hover:-translate-y-0.5 transform cursor-pointer
-                                    `} value={`Join Group`} />
+                                    `} value={`Request To Join Group`} />
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
+                {message == "Success" &&
+                    (<div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+                        <span class="font-medium">Request sent with success! Redirecting to home page.</span>
+                    </div>
+                    )}
+                {message == "Error" && 
+                (<div class="p-4 mb-4 text-sm text-fg-error-strong rounded-base bg-success-soft" role="alert">
+                    <span class="font-medium">Request has already been sent.</span>
+                </div>
+                )}
             </div>
 
 
