@@ -30,7 +30,11 @@ class DeleteGroup(generics.DestroyAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Group.objects.filter(users__in=[user])
+        group = Group.objects.get(pk=self.kwargs['pk'])
+        group_membership = GroupMembership.objects.filter(user=user.id, group=group.id, role='admin')
+        if group_membership.exists():
+            return Group.objects.filter(users__in=[user])
+        raise PermissionDenied()
 
 
 class GetGroup(generics.RetrieveAPIView):

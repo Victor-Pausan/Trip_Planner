@@ -35,7 +35,15 @@ function GroupList() {
     const fetchGroups = async () => {
         try {
             const res = await api.get("/api/groups/");
-            setGroups(res.data);
+            if (res.status === 200) {
+                const groupsWithRole = await Promise.all(
+                    res.data.map(async (group) => {
+                        const userRole = await getUserGroupRole(group.slug)
+                        return { ...group, currentUserRole: userRole }
+                    })
+                )
+                setGroups(groupsWithRole)
+            }
         } catch (error) {
             alert(error);
         }
@@ -66,6 +74,17 @@ function GroupList() {
                 } else {
                     alert("Group creation failed")
                 }
+            }
+        } catch (error) {
+            alert(error)
+        }
+    }
+
+    const getUserGroupRole = async (group_slug) => {
+        try {
+            const res = await api.get(`/api/groups/token/user_role/${group_slug}/`)
+            if (res.status === 200) {
+                return res.data[0].role
             }
         } catch (error) {
             alert(error)
@@ -115,23 +134,25 @@ function GroupList() {
                                 >
                                     Access Group <ArrowRight size={16} />
                                 </Link>
-                                <button
-                                    onClick={() => setActiveModal(group.id)}
-                                    className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50"
-                                    title="Delete Group"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                                {group?.currentUserRole == 'admin' && (
+                                    <button
+                                        onClick={() => setActiveModal(group.id)}
+                                        className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50"
+                                        title="Delete Group"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <DeleteModal 
+            <DeleteModal
                 isOpen={activeModal}
                 onClose={() => setActiveModal('')}
-                onConfirm={() => {deleteGroup(activeModal); setActiveModal('')}}
+                onConfirm={() => { deleteGroup(activeModal); setActiveModal('') }}
             />
         </>
     );

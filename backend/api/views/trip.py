@@ -151,11 +151,12 @@ class DeleteTrip(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        try:
-            user = self.request.user
-            return Trip.objects.filter(group__users__in=[user])
-        except Trip.DoesNotExist:
-            raise PermissionDenied
+        user = self.request.user
+        trip = Trip.objects.get(id=self.kwargs["pk"])
+        group_membership = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
+        if group_membership.exists():
+            return Trip.objects.all()
+        raise PermissionDenied()
 
 
 class GetAllTripsOfUser(generics.ListAPIView):
