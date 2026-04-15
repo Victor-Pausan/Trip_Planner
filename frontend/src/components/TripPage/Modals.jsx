@@ -206,3 +206,38 @@ export const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
         </div>
     );
 };
+
+export const DatesModal = ({ isOpen, onClose, onSave, initialData }) => {
+    const [formData, setFormData] = useState({
+        start_date: '', end_date: ''
+    });
+
+    useEffect(() => {
+        if (isOpen) {
+            if (initialData) setFormData(initialData);
+            else setFormData({ start_date:'', end_date: ''});
+        }
+    }, [initialData, isOpen]);
+
+    const handleSave = () => {
+        onSave(formData);
+        onClose();
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Dates" : "Add Dates"} onSave={handleSave}>
+            <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <input required type="date" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.start_date} onChange={e => setFormData({ ...formData, start_date: e.target.value })} />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <input required type="date" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" value={formData.end_date || ''} onChange={e => setFormData({ ...formData, end_date: e.target.value })} />
+                    </div>
+                </div>
+            </div>
+        </Modal>
+    );
+};

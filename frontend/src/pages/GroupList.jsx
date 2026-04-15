@@ -11,7 +11,7 @@ const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
                 <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Reservation</h3>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Group</h3>
                     <p className="text-gray-600 text-sm">Are you sure you want to delete this group? This action cannot be undone.</p>
                 </div>
                 <div className="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50">

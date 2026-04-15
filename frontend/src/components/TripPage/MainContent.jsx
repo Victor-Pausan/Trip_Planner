@@ -1,29 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Heart, ChevronDown, Search, Copy, Check, ChevronRight, UserPlus, Plane, Bed, Car, Utensils, Paperclip, MoreHorizontal, Calendar, Users, Pencil, Plus, MessageSquare, Home, MapPin, Trash2, UserStar } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Plane, Paperclip, Calendar, Plus, Home, MapPin, Trash2, UserPlus } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext'
 import { TripReservationsSection } from './TripsReservationsSection';
-import { FlightModal, LodgingModal, ActivityModal, DeleteModal } from './Modals';
+import { FlightModal, LodgingModal, ActivityModal, DeleteModal, DatesModal } from './Modals';
+import MembersModal from './MembersModal'
+import { Link } from 'react-router-dom';
 
-function formatMonthDayYear(dateInput) {
-  if (!dateInput) return '';
-  const date = new Date(dateInput);
-  if (Number.isNaN(date.getTime())) return String(dateInput);
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
 
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'UTC',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
-  const parts = formatter.formatToParts(date);
-  const month = parts.find(p => p.type === 'month')?.value ?? '';
-  const day = parts.find(p => p.type === 'day')?.value ?? '';
-  const year = parts.find(p => p.type === 'year')?.value ?? '';
-  return `${month} - ${day} - ${year}`;
-}
-
-export default function MainContent({ photoURI, trip, posts, addPost, deletePost, handleAppreciate, isPhotoLoading, onTitleSave, reservations, addReservation, editReservation, deleteReservation }) {
+export default function MainContent({
+  photoURI, trip, posts, addPost, deletePost,
+  handleAppreciate, isPhotoLoading, onTitleSave,
+  reservations, addReservation, editReservation,
+  deleteReservation, joinRequests, members,
+  currentUserRole, onAcceptRequest, onDeclineRequest,
+  editTripDates }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -35,11 +30,18 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
 
   const [activeModal, setActiveModal] = useState(null);
   const [isInviteOpen, setIsInviteOpen] = useState(false)
+  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
   const [currentEditingReservation, setCurrentEditingReservation] = useState(null);
+
+  const [isTripDates, setIsTripDates] = useState(false)
 
   useEffect(() => {
     if (!isEditingTitle) setTitle(trip?.title ?? '');
   }, [trip?.title]);
+
+  useEffect(() => {
+    setIsTripDates(trip?.start_date && trip?.end_date)
+  }, [trip?.start_date, trip?.end_date])
 
   const handleAddPost = () => {
     if (postTitle.trim() && postDescription.trim()) {
@@ -83,6 +85,11 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const handleSaveDates = (type, data) => {
+    editTripDates(data)
+    closeModal()
+  }
 
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 relative pb-20">
@@ -138,19 +145,42 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
                 {title}
               </h1>
             )}
+            <Link to={`/group/${trip.group}`} className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-800 mb-6 transition-colors">
+              <ArrowLeft size={16} /> Group Page
+            </Link>
           </div>
 
           <div className="flex items-center justify-between mt-8">
-            <button className="flex items-center space-x-2 text-gray-500 hover:text-gray-800 transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium">
-              <Calendar size={16} />
-              <span>Add trip dates</span>
-            </button>
-
-            <div className="flex items-center space-x-2">
-              <div className="flex -space-x-2">
-                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
-                  {currentUser?.username.charAt(0)}
+            <div>
+              <button onClick={() => setActiveModal('dates')} className="flex items-center space-x-2 text-gray-500 hover:text-gray-800 transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium">
+                <Calendar size={16} />
+                <span>{isTripDates ? 'Edit' : 'Add'} trip dates</span>
+              </button>
+              {isTripDates && (
+                <div className="mt-3 flex gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
+                  <div>
+                    <span className="block text-xs text-gray-400 uppercase tracking-wider">Start Day</span>
+                    {formatDate(trip.start_date)}
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-400 uppercase tracking-wider">End Day</span>
+                    {formatDate(trip.end_date)}
+                  </div>
                 </div>
+              )}
+
+            </div>
+            <div className="flex items-center space-x-2">
+              <div
+                className="flex -space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setIsMembersModalOpen(true)}
+              >
+                {members.map((member, i) => (
+                  i <= 3 ?
+                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-700 shadow-sm" title={member}>
+                      {member.username.charAt(0).toUpperCase()}
+                    </div> : ''
+                ))}
               </div>
               <button onClick={() => setIsInviteOpen(true)} className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors">
                 <Plus size={16} />
@@ -184,12 +214,12 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
               </div>
               <span className="text-xs font-medium text-gray-600">Activity</span>
             </button>
-            <button className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all group">
+            <a href='#notes' className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all group">
               <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 mb-2 group-hover:scale-110 transition-transform">
                 <Paperclip size={20} />
               </div>
               <span className="text-xs font-medium text-gray-600">Attachment</span>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -197,6 +227,7 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
         <TripReservationsSection
           reservations={reservations}
           currentUser={currentUser}
+          currentUserRole={currentUserRole}
           onDelete={deleteReservation}
           onEdit={handleEditReservation}
         />
@@ -248,9 +279,9 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
                       <span className="text-xs text-gray-500">{new Date(post.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  {currentUser && post.author == currentUser.username && (
+                  {((currentUser && post.author == currentUser.username) || currentUserRole == 'admin') && (
                     <button
-                      onClick={() => {setActiveModal('post'); setPostToDelete(post.id)}}
+                      onClick={() => { setActiveModal('post'); setPostToDelete(post.id) }}
                       className="text-gray-400 hover:text-red-500 transition-colors p-2"
                     >
                       <Trash2 size={18} />
@@ -296,10 +327,27 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
         initialData={currentEditingReservation?.type === 'activity' ? currentEditingReservation : null}
       />
 
+      <DatesModal
+        isOpen={activeModal === 'dates'}
+        onClose={closeModal}
+        onSave={(data) => handleSaveDates('dates', data)}
+        initialData={trip?.start_date != '' && trip?.end_date != '' ? { start_date: trip?.start_date, end_date: trip?.end_date } : null}
+      />
+
       <DeleteModal
         isOpen={activeModal === 'post'}
         onClose={closeModal}
-        onConfirm={() => {handleDeletePost(postToDelete)}}
+        onConfirm={() => { handleDeletePost(postToDelete) }}
+      />
+
+      <MembersModal
+        isOpen={isMembersModalOpen}
+        onClose={() => setIsMembersModalOpen(false)}
+        members={members}
+        requests={joinRequests}
+        currentUserRole={currentUserRole}
+        onAcceptRequest={onAcceptRequest}
+        onDeclineRequest={onDeclineRequest}
       />
 
       {/* Invite Modal */}
@@ -336,10 +384,7 @@ export default function MainContent({ photoURI, trip, posts, addPost, deletePost
             </div>
           </div>
         </div>
-
-        
       )}
-
     </div>
   );
 }

@@ -16,8 +16,9 @@ function Trip() {
     const [posts, setPosts] = useState([])
     const [placeLocation, setPlaceLocation] = useState(null)
     const [mapReadyToRender, setMapReadyToRender] = useState(false)
-    const [userRole , setUserRole] = useState('member')
+    const [userRole , setUserRole] = useState('')
     const [joinRequests, setJoinRequests] = useState([])
+    const [members, setMembers] = useState([])
 
     const [reservations, setReservations] = useState([]);
 
@@ -59,6 +60,7 @@ function Trip() {
             if (res.status === 200) {
                 await getPlaceData(res.data.place)
                 await getUserRole(res.data.group)
+                await getGroupMembers(res.data.group)
                 setTrip(res.data)
             } else {
                 alert("Couldn't get trip.")
@@ -213,7 +215,8 @@ function Trip() {
                                 const longitude = res2.data.longitude
                                 const placeName = res2.data.name
                                 const photoURI = res2.data.photoURI
-                                return {...f, type:'lodging', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI}
+                                const address = res2.data.address
+                                return {...f, type:'lodging', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI, address:address}
                             }
                         }
                         return {...f, type:'lodging', author:username}
@@ -240,7 +243,8 @@ function Trip() {
                                 const longitude = res2.data.longitude
                                 const placeName = res2.data.name
                                 const photoURI = res2.data.photoURI
-                                return {...f, type:'activity', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI}
+                                const address = res2.data.address
+                                return {...f, type:'activity', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI, address:address}
                             }
                         }
                         return {...f, type:'activity', author:username}
@@ -266,12 +270,14 @@ function Trip() {
                         const longitude = res2.data.longitude
                         const placeName = res2.data.name
                         const photoURI = res2.data.photoURI
+                        const address = res2.data.address
                         newReservation = {
                             ...res.data,
                             latitude:latitude, 
                             longitude:longitude, 
                             placeName:placeName,
                             photoURI:photoURI,
+                            address:address,
                             type
                         };
                     }
@@ -344,6 +350,52 @@ function Trip() {
             alert(error)
         }
     }
+
+    const getGroupMembers = async (slug) => {
+        try {
+            const res = await api.get(`/api/groups/members/${slug}/`)
+            if (res.status === 200) {
+                setMembers(res.data)  
+            }
+        } catch (error) {
+            alert(error)
+        }
+
+    }
+
+    const acceptJoinRequest = async (id) => {
+        try{
+            const res = await api.patch(`/api/groups/add/user/${id}/`)
+            if(res.status === 200){
+                setJoinRequests(joinRequests.filter((req) => req.id != id))
+                getGroupMembers(trip.group)
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
+
+    const declineJoinRequest = async (id) => {
+        try{
+            const res = await api.delete(`/api/groups/delete/join_request/${id}/`)
+            if(res.status === 204){
+                setJoinRequests(joinRequests.filter((req) => req.id != id))
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
+
+    const editTripDates = async (data) => {
+        try{
+            const res = await api.patch(`/api/trip/update/dates/${id}/`, data)
+            if(res.status === 200){
+                setTrip({...trip, start_date: data.start_date, end_date: data.end_date })
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
     
 
     return (
@@ -368,6 +420,12 @@ function Trip() {
                             addReservation={addReservation}
                             deleteReservation={handleDeleteReservation}
                             editReservation={handleEditReservation}
+                            joinRequests={joinRequests}
+                            members={members}
+                            currentUserRole={userRole}
+                            onAcceptRequest={acceptJoinRequest}
+                            onDeclineRequest={declineJoinRequest}
+                            editTripDates={editTripDates}
                         />
                             
                             

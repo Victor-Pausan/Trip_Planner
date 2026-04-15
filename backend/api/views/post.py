@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.db.models import F
 
-from ..models import Trip, Post, Likes
+from ..models import Trip, Post, Likes, GroupMembership
 
 from django.core.exceptions import PermissionDenied
 
@@ -80,7 +80,11 @@ class DeletePost(generics.DestroyAPIView):
     def get_queryset(self):
         try:
             user = self.request.user
-            return Post.objects.filter(trip__group__users__in=[user], author=user)
+            post = Post.objects.get(id=self.kwargs.get('pk'))
+            group_membership = GroupMembership.objects.filter(user=user.id, group=post.trip.group.id, role='admin')
+            if post.author == user or group_membership.exists():
+                return Post.objects.all()
+            raise PermissionDenied()
         except:
             raise PermissionDenied("Access forbidden")
 

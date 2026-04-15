@@ -12,7 +12,7 @@ export default function MapArea({ mainLocation, reservations }) {
     if (reservations) {
       reservations.forEach((r) => {
         if (r.latitude && r.longitude) {
-          locationsArray.push({ key: r.place, photoURI:r.photoURI, placeName:r.placeName, location: { lat: parseFloat(r.latitude), lng: parseFloat(r.longitude) } })
+          locationsArray.push({ key: r.place, address:r.address, photoURI:r.photoURI, placeName:r.placeName, location: { lat: parseFloat(r.latitude), lng: parseFloat(r.longitude) } })
         }
       });
       setLocations(locationsArray)
@@ -43,6 +43,9 @@ export default function MapArea({ mainLocation, reservations }) {
               <a href="#">
                 <h5 class="mt-6 mb-2 text-2xl font-semibold tracking-tight text-heading">{point.placeName}</h5>
               </a>
+              {point.address && (
+                <span>Address: {point?.address}</span>
+              )}
             </div>
           </InfoWindow>
         )}

@@ -22,13 +22,3 @@ class GetUsernameById(generics.RetrieveAPIView):
     serializer_class = UsernameSerializer
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
-
-
-class GetUserByGroup(generics.ListAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        group_slug = self.kwargs.get("group_slug")
-        group = Group.objects.get(slug=group_slug)
-        return User.objects.filter(trip_groups__in=[group])

@@ -3,7 +3,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.models import FlightReservation, Trip
+from api.models import FlightReservation, Trip, GroupMembership
 from api.serializers import FlightReservationSerializer
 
 
@@ -35,7 +35,11 @@ class UpdateFlight(generics.UpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return FlightReservation.objects.filter(trip__group__users__in=[user])
+        reservation = FlightReservation.objects.get(id=self.kwargs.get('pk'))
+        group_membership = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id, role='admin')
+        if reservation.author == user or group_membership.exists():
+            return FlightReservation.objects.all()
+        raise PermissionDenied()
 
     def put(self, request, *args, **kwargs):
         flight = self.get_object()
@@ -50,4 +54,8 @@ class DeleteFlight(generics.DestroyAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return FlightReservation.objects.filter(trip__group__users__in=[user])
+        reservation = FlightReservation.objects.get(id=self.kwargs.get('pk'))
+        group_membership = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id, role='admin')
+        if reservation.author == user or group_membership.exists():
+            return FlightReservation.objects.all()
+        raise PermissionDenied()

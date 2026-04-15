@@ -26,9 +26,6 @@ class Group(models.Model):
             # Normal save if we already have a slug
             super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.title
-
 class GroupJoinRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
@@ -52,7 +49,7 @@ class Place(models.Model):
     photoURI = models.CharField(max_length=300, default=None, blank=True, null=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    address = models.CharField(max_length=300, default=None, blank=True, null=True)
+    address = models.CharField(max_length=500, default=None, blank=True, null=True)
 
 class Trip(models.Model):
     title = models.CharField(max_length=100, blank=True)

@@ -5,6 +5,25 @@ import Navbar from "../components/Navbar";
 import TripForm from "../components/TripForm";
 import { Link } from 'react-router-dom';
 import { Users, UserPlus, Calendar, Trash2, ArrowLeft, Plus, Copy, Check } from 'lucide-react';
+import MembersModal from "../components/TripPage/MembersModal";
+
+const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
+    if (isOpen === '') return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col">
+                <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Trip</h3>
+                    <p className="text-gray-600 text-sm">Are you sure you want to delete this trip? This action cannot be undone.</p>
+                </div>
+                <div className="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3 bg-gray-50">
+                    <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                    <button onClick={onConfirm} className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 function Group() {
     const { slug } = useParams();
@@ -16,6 +35,9 @@ function Group() {
     const [message, setMessage] = useState("")
     const navigate = useNavigate()
 
+    const [userRole , setUserRole] = useState('')
+    const [joinRequests, setJoinRequests] = useState([])
+
     const [trips, setTrips] = useState([])
     const placeholderImg = "https://placehold.co/600x400"
 
@@ -25,6 +47,8 @@ function Group() {
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [isAddTripOpen, setIsAddTripOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
+    const [activeModal, setActiveModal] = useState('')
 
     const handleCopy = (inviteLink) => {
         navigator.clipboard.writeText(inviteLink);
@@ -43,6 +67,7 @@ function Group() {
 
         getGroup()
         getTrips()
+        getUserRole(slug)
     }, [])
 
     useEffect(() => {
@@ -128,14 +153,69 @@ function Group() {
     }
 
     const updateGroupTitle = async (newTitle) => {
-        try{
+        try {
             const res = await api.patch(
                 `/api/groups/update/title/${group.id}/`,
                 {
-                    title:newTitle
+                    title: newTitle
                 }
             )
-        } catch(error){
+        } catch (error) {
+            alert(error)
+        }
+    }
+
+    const getUserRole = async (slug) => {
+        try{    
+            const res = await api.get(`/api/groups/token/user_role/${slug}/`)
+            if(res.status === 200){
+                setUserRole(res.data[0].role);
+                if(res.data[0].role == "admin")
+                    await getJoinRequests(slug)
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
+
+    const getJoinRequests = async (slug) => {
+        try{
+            const res = await api.get(`/api/groups/token/process/${slug}/`)
+            if(res.status === 200){
+                if(res.data.length != 0){
+                    const joinRequests = await Promise.all(
+                        res.data.map(async (joinRequest) => {
+                            const user = await getUser(joinRequest.user)
+                            return {...joinRequest, user:user}
+                        })
+                    )
+                    setJoinRequests(joinRequests)
+                }
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
+
+    const acceptJoinRequest = async (id) => {
+        try{
+            const res = await api.patch(`/api/groups/add/user/${id}/`)
+            if(res.status === 200){
+                setJoinRequests(joinRequests.filter((req) => req.id != id))
+                getGroupMembers()
+            }
+        }catch(error){
+            alert(error)
+        }
+    }
+
+    const declineJoinRequest = async (id) => {
+        try{
+            const res = await api.delete(`/api/groups/delete/join_request/${id}/`)
+            if(res.status === 204){
+                setJoinRequests(joinRequests.filter((req) => req.id != id))
+            }
+        }catch(error){
             alert(error)
         }
     }
@@ -180,17 +260,18 @@ function Group() {
                                     {groupTitle}
                                 </h1>
                             )}
-                            <p className="text-gray-500 flex items-center gap-2">
+                            <p onClick={() => setIsMembersModalOpen(true)} className="text-gray-500 cursor-pointer hover:opacity-80 flex items-center gap-2">
                                 <Users size={16} /> {members.length} Members
                             </p>
                         </div>
 
                         <div className="flex items-center gap-4 bg-gray-50 p-2 rounded-2xl border border-gray-100">
-                            <div className="flex -space-x-3 px-2">
+                            <div onClick={() => setIsMembersModalOpen(true)} className="flex -space-x-3 cursor-pointer hover:opacity-80 px-2">
                                 {members.map((member, i) => (
+                                    i <= 3 ? 
                                     <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-700 shadow-sm" title={member}>
                                         {member.username.charAt(0).toUpperCase()}
-                                    </div>
+                                    </div> : ''
                                 ))}
                             </div>
                             <button
@@ -238,7 +319,7 @@ function Group() {
                                     View Details
                                 </button>
                                 <button
-                                    onClick={() => deleteTrip(trip.id)}
+                                    onClick={() => setActiveModal(trip.id)}
                                     className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"
                                 >
                                     <Trash2 size={18} />
@@ -284,6 +365,16 @@ function Group() {
                     </div>
                 )}
 
+                <MembersModal
+                    isOpen={isMembersModalOpen}
+                    onClose={() => setIsMembersModalOpen(false)}
+                    members={members}
+                    requests={joinRequests}
+                    currentUserRole={userRole}
+                    onAcceptRequest={acceptJoinRequest}
+                    onDeclineRequest={declineJoinRequest}
+                />
+
                 {/* Add Trip Modal */}
                 {isAddTripOpen && (
                     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -299,6 +390,12 @@ function Group() {
                     </div>
                 )}
             </div>
+
+            <DeleteModal 
+                isOpen={activeModal}
+                onClose={() => setActiveModal('')}
+                onConfirm={() => {deleteTrip(activeModal); setActiveModal('')}}
+            />
         </>
     )
 }

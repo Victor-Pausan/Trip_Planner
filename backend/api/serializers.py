@@ -19,6 +19,13 @@ class UsernameSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username']
 
+class UsernameAndRoleSerializer(serializers.ModelSerializer):
+    role = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'role']
+
 class UserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMembership
@@ -83,7 +90,7 @@ class PostSerializer(serializers.ModelSerializer):
 class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
-        fields = ['id', 'name', 'photoURI', 'latitude', 'longitude']
+        fields = ['id', 'name', 'photoURI', 'latitude', 'longitude', 'address']
         extra_kwargs = {
             'photoURI': {'required': False, 'allow_null': True}
         }

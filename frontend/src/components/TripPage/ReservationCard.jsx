@@ -8,13 +8,7 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-const formatJustDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-};
-
-export const ReservationCard = ({ reservation, currentUser, onDelete, onEdit }) => {
+export const ReservationCard = ({ reservation, currentUser, currentUserRole, onDelete, onEdit }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const isAuthor = reservation.author === currentUser.username;
 
@@ -68,12 +62,12 @@ export const ReservationCard = ({ reservation, currentUser, onDelete, onEdit }) 
             <div className="flex-1">
               <div className="flex justify-between items-start">
                 <h4 className="font-semibold text-gray-900">{reservation.placeName}</h4>
-                {reservation.link && (
+              </div>
+              {reservation.link && (
                   <a href={reservation.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
                     View booking
                   </a>
                 )}
-              </div>
               <div className="mt-3 flex gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                 <div>
                   <span className="block text-xs text-gray-400 uppercase tracking-wider">Check-in</span>
@@ -115,7 +109,7 @@ export const ReservationCard = ({ reservation, currentUser, onDelete, onEdit }) 
   return (
     <>
       <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow relative group">
-        {isAuthor && (
+        {(isAuthor || currentUserRole == 'admin') && (
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white/80 backdrop-blur-sm rounded-lg p-1 shadow-sm border border-gray-100">
             <button onClick={() => onEdit(reservation)} className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Edit">
               <Edit2 size={16} />
