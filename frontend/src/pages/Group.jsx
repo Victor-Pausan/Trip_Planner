@@ -342,7 +342,7 @@ function Group() {
                                 <div className="absolute bottom-4 left-4 right-4">
                                     <h3 className="text-xl font-bold text-white mb-1">{trip.title}</h3>
                                     <p className="text-white/80 text-xs font-medium flex items-center gap-1">
-                                        <Calendar size={12} /> {new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        <Calendar size={12} /> {trip?.start_date ? new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
                                     </p>
                                 </div>
                             </div>

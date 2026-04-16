@@ -121,6 +121,10 @@ function GroupList() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {groups.length == 0 && (
+                        <span className="col-start-2 row-start-5 text-lg text-gray-500 mt-1">No groups available yet :(</span>
+                    )}
+                    
                     {groups.map((group) => (
                         <div key={group.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col h-full relative group">
                             <div className="flex-grow">

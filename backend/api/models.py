@@ -1,9 +1,11 @@
-from datetime import timezone
-from tkinter import CASCADE
-from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 import hashlib
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+
+    REQUIRED_FIELDS = ['email']
 
 class Group(models.Model):
     users = models.ManyToManyField(User, through='GroupMembership', related_name='trip_groups')
@@ -71,7 +73,10 @@ class Trip(models.Model):
             super().save(*args, **kwargs)
 
 def get_sentinel_user():
-    return User.objects.get_or_create(username='deleted')[0]
+    return User.objects.get_or_create(
+        username='deleted',
+        defaults={'email': 'deleted@example.com'}
+    )[0]
 
 class Post(models.Model):
     description = models.CharField(max_length=1000)

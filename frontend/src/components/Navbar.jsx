@@ -89,7 +89,7 @@ const Navbar = () => {
                                     <div className="absolute right-0 z-50 mt-2 w-56 rounded-lg border border-gray-200 bg-white shadow-lg">
                                         <div className="border-b border-gray-100 p-3">
                                             <p className="text-sm font-medium text-gray-900">{user.username}</p>
-                                            <p className="text-xs text-gray-500">user@example.com</p>
+                                            <p className="text-xs text-gray-500">{user.email}</p>
                                         </div>
 
                                         <div className="border-t border-gray-100 p-1">
