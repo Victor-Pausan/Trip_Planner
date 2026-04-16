@@ -4,7 +4,7 @@ import api from "../api";
 import Navbar from "../components/Navbar";
 import TripForm from "../components/TripForm";
 import { Link } from 'react-router-dom';
-import { Users, UserPlus, Calendar, Trash2, ArrowLeft, Plus, Copy, Check } from 'lucide-react';
+import { Users, Send, UserPlus, Calendar, Trash2, ArrowLeft, Plus, Copy, Check } from 'lucide-react';
 import MembersModal from "../components/TripPage/MembersModal";
 
 const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
@@ -35,7 +35,7 @@ function Group() {
     const [message, setMessage] = useState("")
     const navigate = useNavigate()
 
-    const [userRole , setUserRole] = useState('')
+    const [userRole, setUserRole] = useState('')
     const [joinRequests, setJoinRequests] = useState([])
 
     const [trips, setTrips] = useState([])
@@ -49,6 +49,40 @@ function Group() {
     const [copied, setCopied] = useState(false);
     const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
     const [activeModal, setActiveModal] = useState('')
+
+    const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteEmailError, setInviteEmailError] = useState('');
+    const [inviteSending, setInviteSending] = useState(false);
+    const [inviteSent, setInviteSent] = useState(false);
+
+    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+    const handleSendInvite = async () => {
+        setInviteSent(false);
+        if (!inviteEmail) {
+            setInviteEmailError('Please enter a valid email address.');
+            return;
+        }
+        if (!isValidEmail(inviteEmail)) {
+            setInviteEmailError('Please enter a valid email address.');
+            return;
+        }
+
+        setInviteSending(true);
+        try {
+            await api.post(`/api/email/invite/`, {
+                email: inviteEmail.trim(),
+                group_slug: slug
+            })
+            setInviteEmail('');
+            setInviteSent(true);
+            setInviteEmailError('')
+        } catch (err) {
+            setInviteEmailError(err.message);
+        } finally {
+            setInviteSending(false);
+        }
+    }
 
     const handleCopy = (inviteLink) => {
         navigator.clipboard.writeText(inviteLink);
@@ -166,56 +200,56 @@ function Group() {
     }
 
     const getUserRole = async (slug) => {
-        try{    
+        try {
             const res = await api.get(`/api/groups/token/user_role/${slug}/`)
-            if(res.status === 200){
+            if (res.status === 200) {
                 setUserRole(res.data[0].role);
-                if(res.data[0].role == "admin")
+                if (res.data[0].role == "admin")
                     await getJoinRequests(slug)
             }
-        }catch(error){
+        } catch (error) {
             alert(error)
         }
     }
 
     const getJoinRequests = async (slug) => {
-        try{
+        try {
             const res = await api.get(`/api/groups/token/process/${slug}/`)
-            if(res.status === 200){
-                if(res.data.length != 0){
+            if (res.status === 200) {
+                if (res.data.length != 0) {
                     const joinRequests = await Promise.all(
                         res.data.map(async (joinRequest) => {
                             const user = await getUser(joinRequest.user)
-                            return {...joinRequest, user:user}
+                            return { ...joinRequest, user: user }
                         })
                     )
                     setJoinRequests(joinRequests)
                 }
             }
-        }catch(error){
+        } catch (error) {
             alert(error)
         }
     }
 
     const acceptJoinRequest = async (id) => {
-        try{
+        try {
             const res = await api.patch(`/api/groups/add/user/${id}/`)
-            if(res.status === 200){
+            if (res.status === 200) {
                 setJoinRequests(joinRequests.filter((req) => req.id != id))
                 getGroupMembers()
             }
-        }catch(error){
+        } catch (error) {
             alert(error)
         }
     }
 
     const declineJoinRequest = async (id) => {
-        try{
+        try {
             const res = await api.delete(`/api/groups/delete/join_request/${id}/`)
-            if(res.status === 204){
+            if (res.status === 204) {
                 setJoinRequests(joinRequests.filter((req) => req.id != id))
             }
-        }catch(error){
+        } catch (error) {
             alert(error)
         }
     }
@@ -268,10 +302,10 @@ function Group() {
                         <div className="flex items-center gap-4 bg-gray-50 p-2 rounded-2xl border border-gray-100">
                             <div onClick={() => setIsMembersModalOpen(true)} className="flex -space-x-3 cursor-pointer hover:opacity-80 px-2">
                                 {members.map((member, i) => (
-                                    i <= 3 ? 
-                                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-700 shadow-sm" title={member}>
-                                        {member.username.charAt(0).toUpperCase()}
-                                    </div> : ''
+                                    i <= 3 ?
+                                        <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border-2 border-white flex items-center justify-center text-xs font-bold text-indigo-700 shadow-sm" title={member}>
+                                            {member.username.charAt(0).toUpperCase()}
+                                        </div> : ''
                                 ))}
                             </div>
                             <button
@@ -320,11 +354,11 @@ function Group() {
                                 </button>
                                 {userRole == 'admin' && (
                                     <button
-                                    onClick={() => setActiveModal(trip.id)}
-                                    className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                                        onClick={() => setActiveModal(trip.id)}
+                                        className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 )}
                             </div>
                         </div>
@@ -346,22 +380,80 @@ function Group() {
                                     <UserPlus size={32} />
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-800">Invite Members</h2>
-                                <p className="text-gray-500 text-sm mt-2">Share this link with friends to invite them to {group.title}.</p>
+                                <p className="text-gray-500 text-sm mt-2">
+                                    Share this link with friends to invite them to {group.title}.
+                                </p>
                             </div>
 
-                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-1 flex items-center">
+                            {/* Copy link */}
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                                Invite link
+                            </p>
+                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-1 flex items-center mb-6">
                                 <input
                                     type="text"
                                     readOnly
-                                    value={'http://' + window.location.host + `/group/join/${group.slug}`}
+                                    value={'http://' + window.location.host + `/group/join/${slug}`}
                                     className="bg-transparent border-none focus:ring-0 text-sm text-gray-600 w-full px-3 outline-none"
                                 />
                                 <button
-                                    onClick={() => handleCopy('http://' + window.location.host + `/group/join/${group.slug}`)}
+                                    onClick={() => handleCopy('http://' + window.location.host + `/group/join/${slug}`)}
                                     className="bg-white border border-gray-200 shadow-sm text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors whitespace-nowrap"
                                 >
-                                    {copied ? <><Check size={16} className="text-green-500" /> Copied</> : <><Copy size={16} /> Copy</>}
+                                    {copied
+                                        ? <><Check size={16} className="text-green-500" /> Copied</>
+                                        : <><Copy size={16} /> Copy</>
+                                    }
                                 </button>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t border-gray-100 mb-6" />
+
+                            {/* Email invite */}
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                                Send via email
+                            </p>
+                            <div className="flex flex-col gap-2">
+                                <div>
+                                    <input
+                                        type="email"
+                                        value={inviteEmail}
+                                        onChange={(e) => {
+                                            setInviteEmail(e.target.value);
+                                            if (inviteEmailError) setInviteEmailError('');
+                                        }}
+                                        onBlur={() => {
+                                            if (inviteEmail && !isValidEmail(inviteEmail)) {
+                                                setInviteEmailError('Please enter a valid email address.');
+                                            }
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key == "Enter") {
+                                                handleSendInvite()
+                                            }
+                                        }}
+                                        placeholder="friend@example.com"
+                                        className={`w-full text-sm px-4 py-2.5 rounded-xl border outline-none transition-colors ${inviteEmailError
+                                            ? 'border-red-400 focus:border-red-400'
+                                            : 'border-gray-200 focus:border-indigo-400'
+                                            }`}
+                                    />
+                                    {inviteEmailError && (
+                                        <p className="text-xs text-red-500 mt-1 ml-1">{inviteEmailError}</p>
+                                    )}
+                                </div>
+                                <button
+                                    onClick={handleSendInvite}
+                                    disabled={inviteSending}
+                                    className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+                                >
+                                    <Send size={15} />
+                                    {inviteSending ? 'Sending…' : 'Send invitation'}
+                                </button>
+                                {inviteSent && (
+                                    <p className="text-sm text-green-500 text-center">Invitation sent!</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -393,10 +485,10 @@ function Group() {
                 )}
             </div>
 
-            <DeleteModal 
+            <DeleteModal
                 isOpen={activeModal}
                 onClose={() => setActiveModal('')}
-                onConfirm={() => {deleteTrip(activeModal); setActiveModal('')}}
+                onConfirm={() => { deleteTrip(activeModal); setActiveModal('') }}
             />
         </>
     )

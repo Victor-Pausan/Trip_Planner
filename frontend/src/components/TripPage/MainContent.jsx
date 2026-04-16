@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Copy, Check, Plane, Paperclip, Calendar, Plus, Home, MapPin, Trash2, UserPlus } from 'lucide-react';
+import { ArrowLeft, Copy, Send, Check, Plane, Paperclip, Calendar, Plus, Home, MapPin, Trash2, UserPlus } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext'
 import { TripReservationsSection } from './TripsReservationsSection';
 import { FlightModal, LodgingModal, ActivityModal, DeleteModal, DatesModal } from './Modals';
 import MembersModal from './MembersModal'
 import { Link } from 'react-router-dom';
+import api from '../../api';
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -32,6 +33,40 @@ export default function MainContent({
   const [isInviteOpen, setIsInviteOpen] = useState(false)
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
   const [currentEditingReservation, setCurrentEditingReservation] = useState(null);
+
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteEmailError, setInviteEmailError] = useState('');
+  const [inviteSending, setInviteSending] = useState(false);
+  const [inviteSent, setInviteSent] = useState(false);
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const handleSendInvite = async () => {
+    setInviteSent(false);
+    if (!inviteEmail) {
+      setInviteEmailError('Please enter a valid email address.');
+      return;
+    }
+    if (!isValidEmail(inviteEmail)) {
+      setInviteEmailError('Please enter a valid email address.');
+      return;
+    }
+
+    setInviteSending(true);
+    try {
+      await api.post(`/api/email/invite/`, {
+        email: inviteEmail.trim(),
+        group_slug: trip.group
+      })
+      setInviteEmail('');
+      setInviteSent(true);
+      setInviteEmailError('')
+    } catch (err) {
+      setInviteEmailError(err.message);
+    } finally {
+      setInviteSending(false);
+    }
+  }
 
   const [isTripDates, setIsTripDates] = useState(false)
 
@@ -365,10 +400,16 @@ export default function MainContent({
                 <UserPlus size={32} />
               </div>
               <h2 className="text-2xl font-bold text-gray-800">Invite Members</h2>
-              <p className="text-gray-500 text-sm mt-2">Share this link with friends to invite them to {trip.title}.</p>
+              <p className="text-gray-500 text-sm mt-2">
+                Share this link with friends to invite them to {trip.title}.
+              </p>
             </div>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-1 flex items-center">
+            {/* Copy link */}
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              Invite link
+            </p>
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-1 flex items-center mb-6">
               <input
                 type="text"
                 readOnly
@@ -379,8 +420,60 @@ export default function MainContent({
                 onClick={() => handleCopy('http://' + window.location.host + `/group/join/${trip.group}`)}
                 className="bg-white border border-gray-200 shadow-sm text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors whitespace-nowrap"
               >
-                {copied ? <><Check size={16} className="text-green-500" /> Copied</> : <><Copy size={16} /> Copy</>}
+                {copied
+                  ? <><Check size={16} className="text-green-500" /> Copied</>
+                  : <><Copy size={16} /> Copy</>
+                }
               </button>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-100 mb-6" />
+
+            {/* Email invite */}
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              Send via email
+            </p>
+            <div className="flex flex-col gap-2">
+              <div>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => {
+                    setInviteEmail(e.target.value);
+                    if (inviteEmailError) setInviteEmailError('');
+                  }}
+                  onBlur={() => {
+                    if (inviteEmail && !isValidEmail(inviteEmail)) {
+                      setInviteEmailError('Please enter a valid email address.');
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if(e.key == "Enter"){
+                      handleSendInvite()
+                    }
+                  }}
+                  placeholder="friend@example.com"
+                  className={`w-full text-sm px-4 py-2.5 rounded-xl border outline-none transition-colors ${inviteEmailError
+                    ? 'border-red-400 focus:border-red-400'
+                    : 'border-gray-200 focus:border-indigo-400'
+                    }`}
+                />
+                {inviteEmailError && (
+                  <p className="text-xs text-red-500 mt-1 ml-1">{inviteEmailError}</p>
+                )}
+              </div>
+              <button
+                onClick={handleSendInvite}
+                disabled={inviteSending}
+                className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+              >
+                <Send size={15} />
+                {inviteSending ? 'Sending…' : 'Send invitation'}
+              </button>
+              {inviteSent && (
+                <p className="text-sm text-green-500 text-center">Invitation sent!</p>
+              )}
             </div>
           </div>
         </div>

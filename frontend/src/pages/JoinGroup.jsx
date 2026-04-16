@@ -37,6 +37,9 @@ function GroupJoinForm() {
             }
         } catch (error) {
             setMesssage("Error")
+            setTimeout(() => {
+                navigate('/')
+            }, 3000)
         }
     }
 
@@ -74,7 +77,7 @@ function GroupJoinForm() {
                     )}
                 {message == "Error" && 
                 (<div class="p-4 mb-4 text-sm text-fg-error-strong rounded-base bg-success-soft" role="alert">
-                    <span class="font-medium">Request has already been sent.</span>
+                    <span class="font-medium">Request has already been sent. Waiting for approval.</span>
                 </div>
                 )}
             </div>

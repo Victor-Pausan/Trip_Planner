@@ -3,6 +3,7 @@ from .group import *
 from .trip import *
 from .post import *
 from .place import *
+from .email_sender import *
 from .Reservations.flight import *
 from .Reservations.lodging import *
 from .Reservations.activity import *

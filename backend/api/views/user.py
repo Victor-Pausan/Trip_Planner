@@ -4,11 +4,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from api.serializers import UserSerializer, UsernameSerializer
 
-
 class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-
 
 class GetUser(generics.ListAPIView):
     serializer_class = UserSerializer
@@ -16,7 +14,6 @@ class GetUser(generics.ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
-
 
 class GetUsernameById(generics.RetrieveAPIView):
     serializer_class = UsernameSerializer
