@@ -94,9 +94,11 @@ class PostSerializer(serializers.ModelSerializer):
 class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
-        fields = ['id', 'name', 'photoURI', 'latitude', 'longitude', 'address']
+        fields = ['id', 'name', 'photoURI', 'latitude', 'longitude', 'address', 'rating', 'websiteUri']
         extra_kwargs = {
-            'photoURI': {'required': False, 'allow_null': True}
+            'photoURI': {'required': False, 'allow_null': True},
+            'rating': {'required': False, 'allow_null': True},
+            'websiteUri': {'required': False, 'allow_null': True},
         }
 
 class FlightReservationSerializer(serializers.ModelSerializer):
@@ -162,6 +164,7 @@ class ActivitySerializer(serializers.ModelSerializer):
                   'notes', 'created_at']
         read_only_fields = ['author', 'trip', 'created_at', 'place']
         extra_kwargs = {
+            'start_date': {'required': False, 'allow_null': True},
             'end_date': {'required': False, 'allow_null': True},
             'notes': {'required': False, 'allow_null': True}
         }

@@ -2,7 +2,7 @@ import React from 'react';
 import { ReservationCard } from './ReservationCard.jsx';
 import { Plane, Home, MapPin } from 'lucide-react';
 
-export const TripReservationsSection = ({ reservations, currentUser, currentUserRole, onDelete, onEdit }) => {
+export const TripReservationsSection = ({ reservations, currentUser, currentUserRole, onDelete, onEdit, changeMapCenter }) => {
   const flights = reservations.filter(r => r.type === 'flight');
   const lodgings = reservations.filter(r => r.type === 'lodging');
   const activities = reservations.filter(r => r.type === 'activity');
@@ -28,6 +28,7 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
                 currentUserRole={currentUserRole}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                changeMapCenter={changeMapCenter}
               />
             ))}
           </div>
@@ -51,6 +52,7 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
                 currentUserRole={currentUserRole}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                changeMapCenter={changeMapCenter}
               />
             ))}
           </div>
@@ -74,6 +76,7 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
                 currentUserRole={currentUserRole}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                changeMapCenter={changeMapCenter}
               />
             ))}
           </div>

@@ -19,7 +19,7 @@ export default function MainContent({
   reservations, addReservation, editReservation,
   deleteReservation, joinRequests, members,
   currentUserRole, onAcceptRequest, onDeclineRequest,
-  editTripDates }) {
+  editTripDates, changeMapCenter }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -265,6 +265,7 @@ export default function MainContent({
           currentUserRole={currentUserRole}
           onDelete={deleteReservation}
           onEdit={handleEditReservation}
+          changeMapCenter={changeMapCenter}
         />
 
         {/* Posts Section */}

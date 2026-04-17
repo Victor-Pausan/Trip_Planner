@@ -52,6 +52,8 @@ class Place(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     address = models.CharField(max_length=500, default=None, blank=True, null=True)
+    rating = models.DecimalField(max_digits=4, decimal_places=1, default=None, null=True, blank=True)
+    websiteUri = models.CharField(max_length=300, default=None, blank=True, null=True)
 
 class Trip(models.Model):
     title = models.CharField(max_length=100, blank=True)

@@ -211,12 +211,15 @@ function Trip() {
                         if(f.place){
                             const res2 = await api.get(`/api/place/${f.place}/`)
                             if(res2.status === 200){
-                                const latitude = res2.data.latitude
-                                const longitude = res2.data.longitude
+                                const latitude = parseFloat(res2.data.latitude)
+                                const longitude = parseFloat(res2.data.longitude)
                                 const placeName = res2.data.name
                                 const photoURI = res2.data.photoURI
                                 const address = res2.data.address
-                                return {...f, type:'lodging', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI, address:address}
+                                const rating = res2.data.rating
+                                const websiteUri = res2.data.websiteUri
+                                return {...f, type:'lodging', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI, address:address, rating:rating,
+                                    websiteUri:websiteUri}
                             }
                         }
                         return {...f, type:'lodging', author:username}
@@ -239,12 +242,15 @@ function Trip() {
                         if(f.place){
                             const res2 = await api.get(`/api/place/${f.place}/`)
                             if(res2.status === 200){
-                                const latitude = res2.data.latitude
-                                const longitude = res2.data.longitude
+                                const latitude = parseFloat(res2.data.latitude)
+                                const longitude = parseFloat(res2.data.longitude)
                                 const placeName = res2.data.name
                                 const photoURI = res2.data.photoURI
                                 const address = res2.data.address
-                                return {...f, type:'activity', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI, address:address}
+                                const rating = res2.data.rating
+                                const websiteUri = res2.data.websiteUri
+                                return {...f, type:'activity', author:username, latitude:latitude, longitude:longitude, placeName:placeName, photoURI:photoURI, address:address, rating:rating,
+                                    websiteUri:websiteUri}
                             }
                         }
                         return {...f, type:'activity', author:username}
@@ -266,11 +272,13 @@ function Trip() {
                 if(res.data.place){
                     const res2 = await api.get(`/api/place/${res.data.place}/`)
                     if(res2.status === 200){
-                        const latitude = res2.data.latitude
-                        const longitude = res2.data.longitude
+                        const latitude = parseFloat(res2.data.latitude)
+                        const longitude = parseFloat(res2.data.longitude)
                         const placeName = res2.data.name
                         const photoURI = res2.data.photoURI
                         const address = res2.data.address
+                        const rating = res2.data.rating
+                        const websiteUri = res2.data.websiteUri
                         newReservation = {
                             ...res.data,
                             latitude:latitude, 
@@ -278,6 +286,8 @@ function Trip() {
                             placeName:placeName,
                             photoURI:photoURI,
                             address:address,
+                            rating:rating,
+                            websiteUri:websiteUri,
                             type
                         };
                     }
@@ -397,11 +407,8 @@ function Trip() {
         }
     }
     
-
     return (
         <>
-            <Navbar />
-
             <div className="flex h-screen w-full overflow-hidden bg-white font-sans text-gray-800">
                 {/* Left Side (App) */}
                 <div className="flex flex-col flex-1 h-full min-w-[600px] max-w-[800px] lg:max-w-[60%] border-r border-gray-200 z-10 shadow-xl">
@@ -426,15 +433,20 @@ function Trip() {
                             onAcceptRequest={acceptJoinRequest}
                             onDeclineRequest={declineJoinRequest}
                             editTripDates={editTripDates}
-                        />
-                            
-                            
+                            changeMapCenter={(latitude, longitude) => {setPlaceLocation({ lat:latitude, lng:longitude })}}
+                        /> 
                     </div>
                 </div>
 
                 {/* Right Side (Map) */}
                 <div className="flex-1 h-full bg-blue-100 relative hidden md:block">
-                    {mapReadyToRender ? <MapArea mainLocation={placeLocation} reservations={reservations}/> : '' }
+                    {mapReadyToRender ? 
+                    <MapArea 
+                        mainLocation={placeLocation} 
+                        reservations={reservations} 
+                        addReservation={(newReservation) => setReservations((reservs) => [...reservs, newReservation])}
+                        tripId={id} 
+                    /> : '' }
                 </div>
             </div>
         </>

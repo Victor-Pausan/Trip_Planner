@@ -8,7 +8,7 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-export const ReservationCard = ({ reservation, currentUser, currentUserRole, onDelete, onEdit }) => {
+export const ReservationCard = ({ reservation, currentUser, currentUserRole, onDelete, onEdit, changeMapCenter }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const isAuthor = reservation.author === currentUser.username;
 
@@ -56,18 +56,32 @@ export const ReservationCard = ({ reservation, currentUser, currentUserRole, onD
       case 'lodging':
         return (
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+            <div onClick={() => changeMapCenter(reservation.latitude, reservation.longitude)} className="w-10 h-10 cursor-pointer rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
               <Home size={20} />
             </div>
             <div className="flex-1">
               <div className="flex justify-between items-start">
-                <h4 className="font-semibold text-gray-900">{reservation.placeName}</h4>
+                <h4 onClick={() => changeMapCenter(reservation.latitude, reservation.longitude)} className="font-semibold cursor-pointer text-gray-900">{reservation.placeName}</h4>
+                <div className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0 text-xs font-medium text-gray-800">
+                  ⭐ {parseFloat(reservation.rating)}
+                </div>
+              </div>
+              {/* Address */}
+              <div className="flex items-start gap-1 mb-1.5">
+                <span className="text-xs mt-0.5">📍</span>
+                <p onClick={() => changeMapCenter(reservation.latitude, reservation.longitude)} className="text-xs cursor-pointer text-gray-500 leading-snug">{reservation.address}</p>
+
               </div>
               {reservation.link && (
-                  <a href={reservation.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                    View booking
-                  </a>
-                )}
+                <a href={reservation.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                  View booking
+                </a>
+              )}
+              {reservation.websiteUri && (
+                <a href={reservation.websiteUri} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                  Visit Website
+                </a>
+              )}
               <div className="mt-3 flex gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                 <div>
                   <span className="block text-xs text-gray-400 uppercase tracking-wider">Check-in</span>
@@ -85,11 +99,21 @@ export const ReservationCard = ({ reservation, currentUser, currentUserRole, onD
       case 'activity':
         return (
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
+            <div onClick={() => changeMapCenter(reservation.latitude, reservation.longitude)} className="w-10 h-10 cursor-pointer rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
               <MapPin size={20} />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-gray-900">{reservation.placeName}</h4>
+              <h4 onClick={() => changeMapCenter(reservation.latitude, reservation.longitude)} className="font-semibold cursor-pointer text-gray-900">{reservation.placeName}</h4>
+              {/* Address */}
+              <div className="flex items-start gap-1 mb-1.5">
+                <span className="text-xs mt-0.5">📍</span>
+                <p onClick={() => changeMapCenter(reservation.latitude, reservation.longitude)} className="text-xs text-gray-500 cursor-pointer leading-snug">{reservation.address}</p>
+              </div>
+              {reservation.websiteUri && (
+                <a href={reservation.websiteUri} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                  Visit Website
+                </a>
+              )}
               <div className="mt-3 flex gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                 <div>
                   <span className="block text-xs text-gray-400 uppercase tracking-wider">Date & Time</span>
@@ -98,6 +122,9 @@ export const ReservationCard = ({ reservation, currentUser, currentUserRole, onD
                 </div>
               </div>
               {reservation.notes && <p className="mt-2 text-sm text-gray-600 italic">"{reservation.notes}"</p>}
+            </div>
+            <div className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0 text-xs font-medium text-gray-800">
+              ⭐ {parseFloat(reservation.rating)}
             </div>
           </div>
         );
@@ -124,10 +151,10 @@ export const ReservationCard = ({ reservation, currentUser, currentUserRole, onD
           <span>Added by {reservation.author}</span>
         </div>
       </div>
-      <DeleteModal 
-        isOpen={isDeleteModalOpen} 
-        onClose={() => setIsDeleteModalOpen(false)} 
-        onConfirm={handleConfirmDelete} 
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
       />
     </>
   );
