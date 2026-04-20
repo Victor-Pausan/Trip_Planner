@@ -179,3 +179,10 @@ class ActivitySerializer(serializers.ModelSerializer):
             if data.get(field) == "":
                 data[field] = None
         return super().to_internal_value(data)
+
+class SuggestedActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = ['id', 'start_date',
+                  'place', 'created_at']
+        read_only_fields = ['author', 'trip', 'created_at', 'place']

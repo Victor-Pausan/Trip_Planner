@@ -46,4 +46,5 @@ urlpatterns = [
     path('activity/update/<int:pk>/', views.UpdateActivity.as_view(), name='update-flight'),
     path('activity/delete/<int:pk>/', views.DeleteActivity.as_view(), name='delete-flight'),
     path('email/invite/', views.send_invite, name='send-email-invite'),
+    path('generate/activity/suggestions/<int:trip_id>/', views.GetGeneratedActivityList.as_view(), name='generate-activity-suggestions'),
 ]

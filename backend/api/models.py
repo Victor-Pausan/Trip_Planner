@@ -121,3 +121,6 @@ class LodgingReservation(Reservation):
 class Activity(Reservation):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
     price = models.CharField(max_length=10, blank=True, null=True)
+
+class SuggestedActivity(Reservation):
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)

@@ -7,3 +7,4 @@ from .email_sender import *
 from .Reservations.flight import *
 from .Reservations.lodging import *
 from .Reservations.activity import *
+from .ai_model import *
