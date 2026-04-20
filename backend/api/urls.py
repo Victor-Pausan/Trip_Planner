@@ -11,6 +11,7 @@ urlpatterns = [
     path('groups/delete/<int:pk>/', views.DeleteGroup.as_view(), name='delete-group'),
     path('groups/delete/join_request/<int:request_id>/', views.DeleteJoinGroupRequest.as_view(), name='delete-group-join-request'),
     path('groups/members/<slug:slug>/', views.GetGroupMembers.as_view(), name='get-group-members'),
+    path('groups/members/update/role/', views.UpdateUserRole.as_view(), name='update-user-role'),
     path ('groups/add/user/<int:request_id>/', views.AddUserToGroup.as_view(), name='add-user-to-group'),
     path('groups/update/title/<int:pk>/', views.UpdateGroupTitle.as_view(), name='update-group-title'),
     #-- group invites --

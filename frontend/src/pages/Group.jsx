@@ -6,6 +6,7 @@ import TripForm from "../components/TripForm";
 import { Link } from 'react-router-dom';
 import { Users, Send, UserPlus, Calendar, Trash2, ArrowLeft, Plus, Copy, Check } from 'lucide-react';
 import MembersModal from "../components/TripPage/MembersModal";
+import { useUser } from "../contexts/UserContext";
 
 const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
     if (isOpen === '') return null;
@@ -27,6 +28,7 @@ const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
 
 function Group() {
     const { slug } = useParams();
+    const { user } = useUser();
 
     const location = useLocation()
     const [group, setGroup] = useState("")
@@ -334,6 +336,10 @@ function Group() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {trips.length == 0 && (
+                        <span className="col-start-2 row-start-5 text-lg text-gray-500 mt-1">No trips available yet :(  Hit the Add Trip button and start planning your next adventure!</span>
+                    )}
+                    
                     {trips.map((trip) => (
                         <div key={trip.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all group">
                             <div className="h-48 overflow-hidden relative">
@@ -463,7 +469,10 @@ function Group() {
                     isOpen={isMembersModalOpen}
                     onClose={() => setIsMembersModalOpen(false)}
                     members={members}
+                    handleMembersChange={setMembers}
                     requests={joinRequests}
+                    groupSlug={slug}
+                    currentUser={user}
                     currentUserRole={userRole}
                     onAcceptRequest={acceptJoinRequest}
                     onDeclineRequest={declineJoinRequest}

@@ -36,6 +36,7 @@ class GroupMembership(models.Model):
     ROLE_CHOICES = [
         ('member', 'Member'),
         ('admin', 'Admin'),
+        ('organiser', 'Organiser'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)

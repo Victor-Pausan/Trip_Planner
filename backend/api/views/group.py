@@ -143,3 +143,22 @@ class GetGroupMembers(generics.ListAPIView):
         group_slug = self.kwargs['slug']
         group = Group.objects.get(slug=group_slug, users__in=[self.request.user])
         return User.objects.filter(trip_groups__in=[group]).annotate(role=F('groupmembership__role'))
+
+class UpdateUserRole(generics.UpdateAPIView):
+    serializer_class = GroupMembership
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        admin = self.request.user
+        group_slug = request.data.get('group_slug')
+        group = Group.objects.get(slug=group_slug)
+        user_id = request.data.get('user_id')
+        user_to_update = User.objects.get(id=user_id)
+        new_role = request.data.get('new_role')
+        if GroupMembership.objects.filter(group=group, user=admin, role='admin').exists():
+            group_membership = GroupMembership.objects.get(group=group, user=user_to_update)
+            group_membership.role = new_role
+            group_membership.save()
+            return Response({'message': 'User role updated.'}, status=status.HTTP_200_OK)
+        return PermissionDenied('Access Forbidden.')
+

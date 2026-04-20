@@ -2,11 +2,8 @@ import { useParams, } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useUser } from "../contexts/UserContext"
 import api from "../api"
-import PostCard from "../components/PostCard"
-import Navbar from "../components/Navbar"
 import MainContent from "../components/TripPage/MainContent"
 import MapArea from "../components/TripPage/MapArea"
-import Sidebar from "../components/TripPage/SideBar"
 
 function Trip() {
     const { id } = useParams()
@@ -434,6 +431,7 @@ function Trip() {
                             onDeclineRequest={declineJoinRequest}
                             editTripDates={editTripDates}
                             changeMapCenter={(latitude, longitude) => {setPlaceLocation({ lat:latitude, lng:longitude })}}
+                            handleMembersChange={setMembers}
                         /> 
                     </div>
                 </div>
@@ -445,6 +443,7 @@ function Trip() {
                         mainLocation={placeLocation} 
                         reservations={reservations} 
                         addReservation={(newReservation) => setReservations((reservs) => [...reservs, newReservation])}
+                        userRole={userRole}
                         tripId={id} 
                     /> : '' }
                 </div>

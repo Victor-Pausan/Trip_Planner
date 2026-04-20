@@ -12,7 +12,7 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
   return (
     <div className="space-y-8 mt-8">
       {flights.length > 0 && (
-        <section>
+        <section id='flights'>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
               <Plane size={16} />
@@ -36,7 +36,7 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
       )}
 
       {lodgings.length > 0 && (
-        <section>
+        <section id='lodgings'>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
               <Home size={16} />
@@ -60,7 +60,7 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
       )}
 
       {activities.length > 0 && (
-        <section>
+        <section id='activities'>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
               <MapPin size={16} />

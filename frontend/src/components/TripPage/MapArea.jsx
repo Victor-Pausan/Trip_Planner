@@ -6,9 +6,11 @@ import { useUser } from '../../contexts/UserContext';
 import { useRef } from 'react';
 import { useMap } from '@vis.gl/react-google-maps';
 
-const PlaceInfoWindow = ({ selectedPlace, onClose, addToGlobalReservations, tripId }) => {
+const PlaceInfoWindow = ({ selectedPlace, onClose, addToGlobalReservations, tripId, userRole }) => {
   const [confirmed, setConfirmed] = useState(false)
   const [showChoice, setShowChoice] = useState(false)
+
+  const isAuthorized = userRole == "admin" || userRole == "organiser"
 
   const { user } = useUser()
 
@@ -134,50 +136,55 @@ const PlaceInfoWindow = ({ selectedPlace, onClose, addToGlobalReservations, trip
         </div>
 
         {/* Add to trip section */}
-        <div className='h-16'></div>
-        <div className="px-4 pb-5">
-          {!confirmed ? (
-            <>
+        {isAuthorized && (
+          <>
+            <div className='h-16'></div>
+            <div className="px-4 pb-5">
+              {!confirmed ? (
+                <>
 
-              <button
-                onClick={handleAddToTrip}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium rounded-xl transition-colors"
-              >
-                + Add to trip
-              </button>
+                  <button
+                    onClick={handleAddToTrip}
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-base font-medium rounded-xl transition-colors"
+                  >
+                    + Add to trip
+                  </button>
 
-              {/* Type choice */}
-              {showChoice && (
-                <div className="mt-2.5 border border-gray-200 rounded-xl overflow-hidden">
-                  <div className="px-4 py-2.5 text-xs text-gray-500 bg-gray-50">
-                    Add as…
-                  </div>
-                  <TripTypeOption
-                    emoji="🎯"
-                    bgColor="#EEF2FF"
-                    label="Activity"
-                    sublabel="Things to do, attractions, dining"
-                    onClick={() => handleSelectType("activity", selectedPlace)}
-                  />
-                  <TripTypeOption
-                    emoji="🏨"
-                    bgColor="#FEF3C7"
-                    label="Lodging"
-                    sublabel="Hotels, rentals, places to stay"
-                    onClick={() => handleSelectType("lodging", selectedPlace)}
-                  />
+                  {/* Type choice */}
+                  {showChoice && (
+                    <div className="mt-2.5 border border-gray-200 rounded-xl overflow-hidden">
+                      <div className="px-4 py-2.5 text-xs text-gray-500 bg-gray-50">
+                        Add as…
+                      </div>
+                      <TripTypeOption
+                        emoji="🎯"
+                        bgColor="#EEF2FF"
+                        label="Activity"
+                        sublabel="Things to do, attractions, dining"
+                        onClick={() => handleSelectType("activity", selectedPlace)}
+                      />
+                      <TripTypeOption
+                        emoji="🏨"
+                        bgColor="#FEF3C7"
+                        label="Lodging"
+                        sublabel="Hotels, rentals, places to stay"
+                        onClick={() => handleSelectType("lodging", selectedPlace)}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                  <span className="text-base">✅</span>
+                  <span className="text-sm font-medium text-emerald-800">
+                    "{selectedPlace.name}" added as {confirmed}
+                  </span>
                 </div>
               )}
-            </>
-          ) : (
-            <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-              <span className="text-base">✅</span>
-              <span className="text-sm font-medium text-emerald-800">
-                "{selectedPlace.name}" added as {confirmed}
-              </span>
             </div>
-          )}
-        </div>
+          </>
+        )}
+
       </div>
     </>
 
@@ -196,7 +203,7 @@ const MapController = ({ mainLocation }) => {
   return null;
 };
 
-export default function MapArea({ mainLocation, reservations, addReservation, tripId }) {
+export default function MapArea({ mainLocation, reservations, addReservation, tripId, userRole }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   const [locations, setLocations] = useState([])
 
@@ -341,6 +348,7 @@ export default function MapArea({ mainLocation, reservations, addReservation, tr
               onClose={closePanel}
               addToGlobalReservations={addReservation}
               tripId={tripId}
+              userRole={userRole}
             />
           )}
 

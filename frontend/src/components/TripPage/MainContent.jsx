@@ -19,7 +19,7 @@ export default function MainContent({
   reservations, addReservation, editReservation,
   deleteReservation, joinRequests, members,
   currentUserRole, onAcceptRequest, onDeclineRequest,
-  editTripDates, changeMapCenter }) {
+  editTripDates, changeMapCenter, handleMembersChange }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -40,6 +40,8 @@ export default function MainContent({
   const [inviteSent, setInviteSent] = useState(false);
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const isAuthorized = currentUserRole == "admin" || currentUserRole == "organiser"
 
   const handleSendInvite = async () => {
     setInviteSent(false);
@@ -126,6 +128,17 @@ export default function MainContent({
     closeModal()
   }
 
+  const handleReservationClick = (type, sectionId) => {
+    if (isAuthorized) {
+      setActiveModal(type);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 relative pb-20">
       {/* Hero Section */}
@@ -187,10 +200,12 @@ export default function MainContent({
 
           <div className="flex items-center justify-between mt-8">
             <div>
-              <button onClick={() => setActiveModal('dates')} className="flex items-center space-x-2 text-gray-500 hover:text-gray-800 transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium">
-                <Calendar size={16} />
-                <span>{isTripDates ? 'Edit' : 'Add'} trip dates</span>
-              </button>
+              {isAuthorized && (
+                <button onClick={() => setActiveModal('dates')} className="flex items-center space-x-2 text-gray-500 hover:text-gray-800 transition-colors bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-sm font-medium">
+                  <Calendar size={16} />
+                  <span>{isTripDates ? 'Edit' : 'Add'} trip dates</span>
+                </button>
+              )}
               {isTripDates && (
                 <div className="mt-3 flex gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                   <div>
@@ -229,27 +244,36 @@ export default function MainContent({
 
         {/* Reservations Grid */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Reservations and attachments</h2>
+          <div className='flex flex-row justify-between'>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Reservations and attachments</h2>
+            {isAuthorized ?
+              (<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>) : (
+                <h2 className="text-lg font-bold text-gray-900 mb-4">View Details</h2>
+              )}
+
+          </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-            <button onClick={() => setActiveModal('flight')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all group">
+            <button title={isAuthorized ? "Add New" : "View Details"} onClick={() => { handleReservationClick('flight', 'flights') }} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all group" >
               <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-2 group-hover:scale-110 transition-transform">
                 <Plane size={20} />
               </div>
               <span className="text-xs font-medium text-gray-600">Flight</span>
             </button>
-            <button onClick={() => setActiveModal('lodging')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-all group">
+            <button title={isAuthorized ? "Add New" : "View Details"} onClick={() => handleReservationClick('lodging', 'lodgings')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-all group">
               <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 mb-2 group-hover:scale-110 transition-transform">
                 <Home size={20} />
               </div>
               <span className="text-xs font-medium text-gray-600">Lodging</span>
             </button>
-            <button onClick={() => setActiveModal('activity')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-green-200 hover:bg-green-50 transition-all group">
+            <button title={isAuthorized ? "Add New" : "View Details"} onClick={() => handleReservationClick('activity', 'activities')} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-green-200 hover:bg-green-50 transition-all group">
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-2 group-hover:scale-110 transition-transform">
                 <MapPin size={20} />
               </div>
               <span className="text-xs font-medium text-gray-600">Activity</span>
             </button>
-            <a href='#notes' className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all group">
+            <a title='View Details' href='#notes' className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all group">
               <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 mb-2 group-hover:scale-110 transition-transform">
                 <Paperclip size={20} />
               </div>
@@ -380,7 +404,10 @@ export default function MainContent({
         isOpen={isMembersModalOpen}
         onClose={() => setIsMembersModalOpen(false)}
         members={members}
+        handleMembersChange={handleMembersChange}
         requests={joinRequests}
+        groupSlug={trip.group}
+        currentUser={currentUser}
         currentUserRole={currentUserRole}
         onAcceptRequest={onAcceptRequest}
         onDeclineRequest={onDeclineRequest}
@@ -450,7 +477,7 @@ export default function MainContent({
                     }
                   }}
                   onKeyDown={(e) => {
-                    if(e.key == "Enter"){
+                    if (e.key == "Enter") {
                       handleSendInvite()
                     }
                   }}

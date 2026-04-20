@@ -1,6 +1,5 @@
 import random
 import requests
-from django.utils.timezone import override
 
 from ..models import Trip, Group, Place, GroupMembership
 
@@ -120,10 +119,13 @@ class CreateTrip(generics.CreateAPIView):
                 GroupMembership.objects.create(group=group, user=self.request.user, role='admin')
             else:
                 group = Group.objects.get(id=self.request.data.get("group"), users__in=[user])
+                if not (GroupMembership.objects.filter(group=group, user=user, role='admin').exists() or
+                        GroupMembership.objects.filter(group=group, user=user, role='organiser').exists()):
+                    raise PermissionDenied("Access Forbidden")
 
             place = create_place_if_nonexistent(self)
             serializer.save(group=group, place=place)
-        except Group.DoesNotExist:
+        except ObjectDoesNotExist:
             raise PermissionDenied("Access forbidden.")
 
 
@@ -164,8 +166,9 @@ class DeleteTrip(generics.DestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         trip = Trip.objects.get(id=self.kwargs["pk"])
-        group_membership = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
-        if group_membership.exists():
+        check_admin = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
+        check_organiser = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='organiser')
+        if check_admin.exists() or check_organiser.exists():
             return Trip.objects.all()
         raise PermissionDenied()
 
@@ -202,7 +205,12 @@ class UpdateTripDates(generics.UpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Trip.objects.filter(group__users__in=[user])
+        trip = Trip.objects.get(id=self.kwargs["pk"])
+        check_admin = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
+        check_organiser = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='organiser')
+        if check_admin.exists() or check_organiser.exists():
+            return Trip.objects.all()
+        raise PermissionDenied("Access Forbidden")
 
     def patch(self, request, *args, **kwargs):
         with transaction.atomic():

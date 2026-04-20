@@ -28,7 +28,11 @@ class CreateActivity(generics.ListCreateAPIView):
             user = self.request.user
             trip_id = self.kwargs.get('trip_id')
             trip = Trip.objects.get(id=trip_id, group__users__in=[user])
-            serializer.save(author=user, trip=trip, place=place)
+            check_admin = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
+            check_organiser = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='organiser')
+            if check_admin.exists() or check_organiser.exists():
+                serializer.save(author=user, trip=trip, place=place)
+            else: PermissionDenied()
         except Trip.DoesNotExist:
             raise PermissionDenied()
 
@@ -40,8 +44,10 @@ class UpdateActivity(generics.UpdateAPIView):
     def get_queryset(self):
         user = self.request.user
         reservation = Activity.objects.get(id=self.kwargs.get('pk'))
-        group_membership = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id, role='admin')
-        if reservation.author == user or group_membership.exists():
+        check_admin = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id, role='admin')
+        check_organiser = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id,
+                                                         role='organiser')
+        if (reservation.author == user and check_organiser.exists()) or check_admin.exists():
             return Activity.objects.all()
         raise PermissionDenied()
 
@@ -60,7 +66,9 @@ class DeleteActivity(generics.DestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         reservation = Activity.objects.get(id=self.kwargs.get('pk'))
-        group_membership = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id, role='admin')
-        if reservation.author == user or group_membership.exists():
+        check_admin = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id, role='admin')
+        check_organiser = GroupMembership.objects.filter(user=user.id, group=reservation.trip.group.id,
+                                                         role='organiser')
+        if (reservation.author == user and check_organiser.exists()) or check_admin.exists():
             return Activity.objects.all()
         raise PermissionDenied()
