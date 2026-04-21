@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Copy, Send, Check, Plane, Paperclip, Calendar, Plus, Home, MapPin, Trash2, UserPlus } from 'lucide-react';
+import { ArrowLeft, Copy, Send, Check, Plane, Paperclip, Calendar, Plus, Home, MapPin, Trash2, UserPlus, Sparkles } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext'
 import { TripReservationsSection } from './TripsReservationsSection';
+import AIActivitySuggestionsModal from '../AI/Aiactivitysuggestionsmodal';
 import { FlightModal, LodgingModal, ActivityModal, DeleteModal, DatesModal } from './Modals';
 import MembersModal from './MembersModal'
 import { Link } from 'react-router-dom';
@@ -19,7 +20,8 @@ export default function MainContent({
   reservations, addReservation, editReservation,
   deleteReservation, joinRequests, members,
   currentUserRole, onAcceptRequest, onDeclineRequest,
-  editTripDates, changeMapCenter, handleMembersChange }) {
+  editTripDates, changeMapCenter, handleMembersChange,
+  suggestions, handleAddSuggestions }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -33,6 +35,7 @@ export default function MainContent({
   const [isInviteOpen, setIsInviteOpen] = useState(false)
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
   const [currentEditingReservation, setCurrentEditingReservation] = useState(null);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteEmailError, setInviteEmailError] = useState('');
@@ -246,12 +249,20 @@ export default function MainContent({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className='flex flex-row justify-between'>
             <h2 className="text-lg font-bold text-gray-900 mb-4">Reservations and attachments</h2>
-            {isAuthorized ?
-              (<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>) : (
-                <h2 className="text-lg font-bold text-gray-900 mb-4">View Details</h2>
+            <div className='flex flex-row items-center justify-between gap-2 mb-4'>
+              {isAuthorized && (
+                <button onClick={() => setIsAIModalOpen(true)} className="flex items-center gap-1.5 text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-full transition-colors">
+                  <Sparkles size={14} /> AI Suggestions
+                </button>
               )}
+
+              {isAuthorized ?
+                (<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>) : (
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">View Details</h2>
+                )}
+            </div>
 
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
@@ -411,6 +422,13 @@ export default function MainContent({
         currentUserRole={currentUserRole}
         onAcceptRequest={onAcceptRequest}
         onDeclineRequest={onDeclineRequest}
+      />
+
+      <AIActivitySuggestionsModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        trip={trip}
+        handleAddSuggestions={handleAddSuggestions}
       />
 
       {/* Invite Modal */}

@@ -18,6 +18,7 @@ function Trip() {
     const [members, setMembers] = useState([])
 
     const [reservations, setReservations] = useState([]);
+    const [suggestions, setSuggestions] = useState([]);
 
     const [photoUri, setPhotoUri] = useState(null)
     const [isPhotoLoading, setIsPhotoLoading] = useState(true)
@@ -432,6 +433,8 @@ function Trip() {
                             editTripDates={editTripDates}
                             changeMapCenter={(latitude, longitude) => {setPlaceLocation({ lat:latitude, lng:longitude })}}
                             handleMembersChange={setMembers}
+                            suggestions={suggestions}
+                            handleAddSuggestions={(data) => setSuggestions((prev) => [...prev, ...data])}
                         /> 
                     </div>
                 </div>
