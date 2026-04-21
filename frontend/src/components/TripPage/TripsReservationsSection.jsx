@@ -1,8 +1,9 @@
 import React from 'react';
 import { ReservationCard } from './ReservationCard.jsx';
-import { Plane, Home, MapPin } from 'lucide-react';
+import { Plane, Home, MapPin, Sparkles } from 'lucide-react';
+import { SuggestionCard } from './SuggestionCard.jsx';
 
-export const TripReservationsSection = ({ reservations, currentUser, currentUserRole, onDelete, onEdit, changeMapCenter }) => {
+export const TripReservationsSection = ({ reservations, currentUser, currentUserRole, onDelete, onEdit, changeMapCenter, suggestions, suggestionAccept, suggestionDismiss }) => {
   const flights = reservations.filter(r => r.type === 'flight');
   const lodgings = reservations.filter(r => r.type === 'lodging');
   const activities = reservations.filter(r => r.type === 'activity');
@@ -11,6 +12,28 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
 
   return (
     <div className="space-y-8 mt-8">
+      {suggestions.length > 0 && (
+        <section id='activities'>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+            <Sparkles size={16} />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900">Suggested Activities(AI)</h3>
+        </div>
+        <div className="grid gap-4">
+          {suggestions.map(res => (
+            <SuggestionCard
+              key={res.id} 
+              suggestion={res}
+              changeMapCenter={changeMapCenter}
+              onAccept={suggestionAccept}
+              onDismiss={suggestionDismiss}
+            />
+          ))}
+        </div>
+      </section>
+      )}
+
       {flights.length > 0 && (
         <section id='flights'>
           <div className="flex items-center gap-2 mb-4">

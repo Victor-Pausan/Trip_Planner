@@ -210,7 +210,7 @@ const MapController = ({ mainLocation }) => {
   return null;
 };
 
-export default function MapArea({ mainLocation, reservations, addReservation, tripId, userRole }) {
+export default function MapArea({ mainLocation, reservations, addReservation, tripId, userRole, suggestions }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   const [locations, setLocations] = useState([])
 
@@ -270,7 +270,7 @@ export default function MapArea({ mainLocation, reservations, addReservation, tr
     }
   }
 
-  const PoiMarkers = ({ point }) => {
+  const PoiMarkers = ({ point, color, key }) => {
     const [infoWindowShown, setInfoWindowShown] = useState(false);
     const [markerRef, marker] = useAdvancedMarkerRef();
     const handleMarkerClick = () => setInfoWindowShown(isShown => !isShown)
@@ -279,13 +279,13 @@ export default function MapArea({ mainLocation, reservations, addReservation, tr
     return (
       <>
         <AdvancedMarker
-          key={point.key}
+          key={key}
           ref={markerRef}
           position={point.location}
           clickable={true}
           onClick={handleMarkerClick}
         >
-          <Pin background={'#FF0004'} glyphColor={'#000'} borderColor={'#000'} />
+          <Pin background={color} glyphColor={'#000'} borderColor={'#000'} />
         </AdvancedMarker>
         {infoWindowShown && (
           <InfoWindow anchor={marker} onClose={handleClose}>
@@ -348,7 +348,19 @@ export default function MapArea({ mainLocation, reservations, addReservation, tr
         >
           <MapController mainLocation={mainLocation} />
           {locations.map((point) => (
-            <PoiMarkers point={point} />
+            <PoiMarkers
+              key={`reservation-${point.key ?? point.place ?? point.id ?? `${point.location?.lat}-${point.location?.lng}`}`}
+              point={point}
+              color={'#FF0004'}
+            />
+          ))}
+          
+          {suggestions.map((point) => (
+            <PoiMarkers
+              key={`suggestion-${point.id ?? point.place ?? `${point.location?.lat}-${point.location?.lng}`}`}
+              point={point}
+              color={'#b0c999'}
+            />
           ))}
 
           {selectedPlace && (

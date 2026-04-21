@@ -47,6 +47,7 @@ urlpatterns = [
     path('activity/delete/<int:pk>/', views.DeleteActivity.as_view(), name='delete-flight'),
     path('email/invite/', views.send_invite, name='send-email-invite'),
     path('generate/activity/suggestions/<int:trip_id>/', views.GetGeneratedActivityList.as_view(), name='generate-activity-suggestions'),
+    path('suggestions/get/<int:trip_id>/', views.GetSuggestions.as_view(), name='get-suggestions'),
     path('accept/suggestion/<int:pk>/', views.ApproveSuggestion.as_view(), name='accept-suggestion'),
     path('reject/suggestion/<int:pk>/', views.RejectSuggestion.as_view(), name='reject-suggestion'),
 ]

@@ -21,7 +21,8 @@ export default function MainContent({
   deleteReservation, joinRequests, members,
   currentUserRole, onAcceptRequest, onDeclineRequest,
   editTripDates, changeMapCenter, handleMembersChange,
-  suggestions, handleAddSuggestions }) {
+  suggestions, handleAddSuggestions, suggestionAccept,
+  suggestionDismiss }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -301,6 +302,9 @@ export default function MainContent({
           onDelete={deleteReservation}
           onEdit={handleEditReservation}
           changeMapCenter={changeMapCenter}
+          suggestions={suggestions}
+          suggestionDismiss={suggestionDismiss}
+          suggestionAccept={suggestionAccept}
         />
 
         {/* Posts Section */}

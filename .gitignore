@@ -28,4 +28,6 @@ dist-ssr
 /frontend/.env.*
 !/frontend/.env.example
 /backend/backend/settings.py
-/backend/backend/__pycache__/*
+**/__pycache__/
+*.pyc
+*.pyo
