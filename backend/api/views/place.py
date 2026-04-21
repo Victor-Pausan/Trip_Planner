@@ -30,5 +30,7 @@ class GetPlace(generics.RetrieveAPIView):
             address = place_data['formattedAddress'] if 'formattedAddress' in place_data else None
             rating = float(place_data['rating']) if 'rating' in place_data else None
             websiteUri = place_data['websiteUri'] if 'websiteUri' in place_data else None
+            description = place_data['description'] if 'description' in place_data else None
             return Place.objects.create(id=place_id, name=place_name, photoURI=photo_uri, latitude=latitude,
-                                        longitude=longitude, address=address, rating=rating, websiteUri=websiteUri)
+                                        longitude=longitude, address=address, rating=rating, websiteUri=websiteUri,
+                                        description=description)

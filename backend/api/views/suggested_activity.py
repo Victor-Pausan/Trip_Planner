@@ -3,8 +3,24 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.models import SuggestedActivity, Activity, GroupMembership
+from api.models import SuggestedActivity, Activity, GroupMembership, Trip
 from api.serializers import SuggestedActivitySerializer, ActivitySerializer
+
+class GetSuggestions(generics.ListAPIView):
+    serializer_class = SuggestedActivitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        trip_id = self.kwargs['trip_id']
+        trip = Trip.objects.get(id=trip_id)
+
+        check_admin = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
+        check_organiser = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='organiser')
+        if not (check_admin.exists() or check_organiser.exists()):
+            raise PermissionDenied()
+
+        return SuggestedActivity.objects.filter(trip=trip)
 
 class ApproveSuggestion(generics.CreateAPIView):
     serializer_class = ActivitySerializer
@@ -21,6 +37,7 @@ class ApproveSuggestion(generics.CreateAPIView):
             raise PermissionDenied()
 
         Activity.objects.create(place=suggestion.place, start_date=suggestion.start_date, author=suggestion.author, trip=suggestion.trip)
+        suggestion.delete()
         return Response({'message': 'Suggestion was approved!'}, status=status.HTTP_201_CREATED)
 
 class RejectSuggestion(generics.DestroyAPIView):

@@ -5,6 +5,7 @@ import { TripReservationsSection } from './TripsReservationsSection';
 import { FlightModal, LodgingModal, ActivityModal, DeleteModal, DatesModal } from './Modals';
 import MembersModal from './MembersModal'
 import { Link } from 'react-router-dom';
+import AIActivitySuggestionsModal from '../AI/Aiactivitysuggestionsmodal';
 import api from '../../api';
 
 const formatDate = (dateString) => {
@@ -19,7 +20,8 @@ export default function MainContent({
   reservations, addReservation, editReservation,
   deleteReservation, joinRequests, members,
   currentUserRole, onAcceptRequest, onDeclineRequest,
-  editTripDates, changeMapCenter, handleMembersChange }) {
+  editTripDates, changeMapCenter, handleMembersChange,
+  suggestions, handleAddSuggestions }) {
   const [title, setTitle] = useState('');
   const [postDescription, setPostDescription] = useState('')
   const [postTitle, setPostTitle] = useState('')
@@ -33,6 +35,7 @@ export default function MainContent({
   const [isInviteOpen, setIsInviteOpen] = useState(false)
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
   const [currentEditingReservation, setCurrentEditingReservation] = useState(null);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteEmailError, setInviteEmailError] = useState('');
@@ -246,14 +249,35 @@ export default function MainContent({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className='flex flex-row justify-between'>
             <h2 className="text-lg font-bold text-gray-900 mb-4">Reservations and attachments</h2>
-            {isAuthorized ?
-              (<svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>) : (
-                <h2 className="text-lg font-bold text-gray-900 mb-4">View Details</h2>
+
+
+            <div className="flex items-center gap-2 mb-4">
+              {/* AI BUTTON */}
+              {isAuthorized && (
+                <button
+                  onClick={() => setIsAIModalOpen(true)}
+                  className="flex items-center gap-1.5 text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-full transition-colors"
+                  title="Generate activity suggestions with AI"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                    <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+                  </svg>
+                  AI Suggestions
+                </button>
               )}
 
+              {isAuthorized ? (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              ) : (
+                <h2 className="text-lg font-bold text-gray-900">View Details</h2>
+              )}
+            </div>
+
           </div>
+
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
             <button title={isAuthorized ? "Add New" : "View Details"} onClick={() => { handleReservationClick('flight', 'flights') }} className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all group" >
               <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-2 group-hover:scale-110 transition-transform">
@@ -411,6 +435,13 @@ export default function MainContent({
         currentUserRole={currentUserRole}
         onAcceptRequest={onAcceptRequest}
         onDeclineRequest={onDeclineRequest}
+      />
+
+      <AIActivitySuggestionsModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        trip={trip}
+        handleAddSuggestions={handleAddSuggestions}
       />
 
       {/* Invite Modal */}

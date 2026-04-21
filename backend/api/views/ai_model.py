@@ -29,8 +29,9 @@ class GetGeneratedActivityList(generics.CreateAPIView):
         location_name = trip.place.name
         location_address = trip.place.address
         start_date = str(request.data.get('start_date'))
-        end_date = str(request.data.get('end_date'))
+        nr_of_days = str(request.data.get('nr_of_days'))
         user_notes = request.data.get('user_notes')
+        categories = request.data.get('categories')
 
         check_admin = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
         check_organiser = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='organiser')
@@ -46,7 +47,8 @@ class GetGeneratedActivityList(generics.CreateAPIView):
         - Location name: {location_name}
         - Location address: {location_address}
         - Trip start date: {start_date}
-        - Trip end date: {end_date}
+        - Number of days (including start date): {nr_of_days}
+        - User prefers: {categories}
         - User notes: {user_notes}
 
         Instructions:
@@ -108,9 +110,10 @@ class GetGeneratedActivityList(generics.CreateAPIView):
                             address = place_data['formattedAddress'] if 'formattedAddress' in place_data else None
                             rating = float(place_data['rating']) if 'rating' in place_data else None
                             websiteUri = place_data['websiteUri'] if 'websiteUri' in place_data else None
+                            description = place_data['description'] if 'description' in place_data else None
                             place = Place.objects.create(id=place_id, name=place_name, photoURI=photo_uri, latitude=latitude,
                                                         longitude=longitude, address=address, rating=rating,
-                                                        websiteUri=websiteUri)
+                                                        websiteUri=websiteUri, description=description)
                             generated_activity = SuggestedActivity.objects.create(place=place, start_date=start_date, author=user, trip=trip)
                             generated_activities.append(generated_activity)
                         else:
@@ -126,5 +129,5 @@ class GetGeneratedActivityList(generics.CreateAPIView):
         return Response({
             'message': "Activity suggestions generated",
             'data': serializer.data
-        }, status=status.HTTP_200_OK)
+        }, status=status.HTTP_201_CREATED)
 
