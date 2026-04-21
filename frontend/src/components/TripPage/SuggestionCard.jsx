@@ -12,7 +12,7 @@ export const SuggestionCard = ({ suggestion, changeMapCenter, onAccept, onDismis
     return (
         <div className="flex justify-between bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow relative group">
             <div className="flex items-start gap-4">
-                <div onClick={() => changeMapCenter(suggestion.location.lat, suggestion.location.lng)} className="w-10 h-10 cursor-pointer rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
+                <div onClick={() => changeMapCenter(suggestion.location.lat, suggestion.location.lng)} className="w-10 h-10 cursor-pointer rounded-full bg-teal-50 flex items-center justify-center text-teal-700 shrink-0">
                     <Sparkles size={20} />
                 </div>
                 <div className="flex-1">
@@ -29,11 +29,11 @@ export const SuggestionCard = ({ suggestion, changeMapCenter, onAccept, onDismis
                 </div>
             </div>
             <div className="flex gap-4 items-center px-4 py-7">
-                <button onClick={() => onAccept(suggestion.id)} class="max-h-8 btn-accept flex items-center gap-1.5 bg-green-400 text-white text-xs font-semibold px-3.5 py-2 rounded-xl">
+                <button onClick={() => onAccept(suggestion.id)} class="max-h-8 btn-accept flex items-center gap-1.5 text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-xs font-semibold px-3.5 py-2 rounded-xl">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
                     Accept
                 </button>
-                <button onClick={() => onDismiss(suggestion.id)} class="max-h-8 btn-dismiss flex items-center gap-1.5 bg-red-100 text-red-500 text-xs font-semibold px-3.5 py-2 rounded-xl">
+                <button onClick={() => onDismiss(suggestion.id)} class="max-h-8 btn-dismiss flex items-center gap-1.5 text-red-500 bg-red-100 hover:bg-red-200 text-xs font-semibold px-3.5 py-2 rounded-xl">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                     Dismiss
                 </button>

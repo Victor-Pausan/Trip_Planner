@@ -464,21 +464,42 @@ function Trip() {
                 setSuggestions(suggestions.filter((s) => s.id != suggestion_id))
                 setReservations((reservs) => [...reservs, activityWithFullData])
             }
-           
-        } catch(error){
+
+        } catch (error) {
             alert(error)
         }
     }
 
     const dismissSuggestion = async (suggestion_id) => {
-        try{
+        try {
             const res = await api.delete(`/api/reject/suggestion/${suggestion_id}/`)
-            if(res.status === 204){
+            if (res.status === 204) {
                 setSuggestions(suggestions.filter((s) => s.id != suggestion_id))
             }
-        }catch(error){
+        } catch (error) {
             alert(error)
         }
+    }
+
+    const handleAddSuggestion = async (data) => {
+        const suggestionsWithFullData = await Promise.all(
+            data.map(async (f) => {
+                if (f.place) {
+                    const res2 = await api.get(`/api/place/${f.place}/`)
+                    if (res2.status === 200) {
+                        const latitude = parseFloat(res2.data.latitude)
+                        const longitude = parseFloat(res2.data.longitude)
+                        const placeName = res2.data.name
+                        const address = res2.data.address
+                        const rating = res2.data.rating
+                        const photoUri = res2.data.photoURI
+                        return { ...f, location: { lat: latitude, lng: longitude }, photoURI: photoUri, placeName: placeName, address: address, rating: rating }
+                    }
+                }
+                return f
+            })
+        )
+        setSuggestions((reservs) => [...reservs, ...suggestionsWithFullData])
     }
 
     return (
@@ -510,7 +531,7 @@ function Trip() {
                             changeMapCenter={(latitude, longitude) => { setPlaceLocation({ lat: latitude, lng: longitude }) }}
                             handleMembersChange={setMembers}
                             suggestions={suggestions}
-                            handleAddSuggestions={(data) => setSuggestions((prev) => [...prev, ...data])}
+                            handleAddSuggestions={handleAddSuggestion}
                             suggestionAccept={acceptSuggestion}
                             suggestionDismiss={dismissSuggestion}
                         />

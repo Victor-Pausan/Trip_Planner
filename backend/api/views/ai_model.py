@@ -29,7 +29,8 @@ class GetGeneratedActivityList(generics.CreateAPIView):
         location_name = trip.place.name
         location_address = trip.place.address
         start_date = str(request.data.get('start_date'))
-        end_date = str(request.data.get('end_date'))
+        nr_of_days = str(request.data.get('nr_of_days'))
+        categories = request.data.get('categories')
         user_notes = request.data.get('user_notes')
 
         check_admin = GroupMembership.objects.filter(user=user.id, group=trip.group.id, role='admin')
@@ -45,8 +46,9 @@ class GetGeneratedActivityList(generics.CreateAPIView):
         Context:
         - Location name: {location_name}
         - Location address: {location_address}
-        - Trip start date: {start_date}
-        - Trip end date: {end_date}
+        - Trip start date: {start_date} (if missing use today's date)
+        - Number of days: {nr_of_days}
+        - User preferences: {categories}
         - User notes: {user_notes}
 
         Instructions:
@@ -127,5 +129,5 @@ class GetGeneratedActivityList(generics.CreateAPIView):
         return Response({
             'message': "Activity suggestions generated",
             'data': serializer.data
-        }, status=status.HTTP_200_OK)
+        }, status=status.HTTP_201_CREATED)
 

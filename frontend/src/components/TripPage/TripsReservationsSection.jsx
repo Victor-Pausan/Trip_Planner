@@ -8,30 +8,30 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
   const lodgings = reservations.filter(r => r.type === 'lodging');
   const activities = reservations.filter(r => r.type === 'activity');
 
-  if (reservations.length === 0) return null;
+  if (reservations.length === 0 && suggestions.length === 0) return null;
 
   return (
     <div className="space-y-8 mt-8">
       {suggestions.length > 0 && (
-        <section id='activities'>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-            <Sparkles size={16} />
+        <section id='suggestions'>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center text-teal-700">
+              <Sparkles size={16} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Suggested Activities(AI)</h3>
           </div>
-          <h3 className="text-lg font-bold text-gray-900">Suggested Activities(AI)</h3>
-        </div>
-        <div className="grid gap-4">
-          {suggestions.map(res => (
-            <SuggestionCard
-              key={res.id} 
-              suggestion={res}
-              changeMapCenter={changeMapCenter}
-              onAccept={suggestionAccept}
-              onDismiss={suggestionDismiss}
-            />
-          ))}
-        </div>
-      </section>
+          <div className="grid gap-4">
+            {suggestions.map(res => (
+              <SuggestionCard
+                key={res.id}
+                suggestion={res}
+                changeMapCenter={changeMapCenter}
+                onAccept={suggestionAccept}
+                onDismiss={suggestionDismiss}
+              />
+            ))}
+          </div>
+        </section>
       )}
 
       {flights.length > 0 && (
@@ -44,9 +44,9 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
           </div>
           <div className="grid gap-4">
             {flights.map(res => (
-              <ReservationCard 
-                key={res.id} 
-                reservation={res} 
+              <ReservationCard
+                key={res.id}
+                reservation={res}
                 currentUser={currentUser}
                 currentUserRole={currentUserRole}
                 onDelete={onDelete}
@@ -68,9 +68,9 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
           </div>
           <div className="grid gap-4">
             {lodgings.map(res => (
-              <ReservationCard 
-                key={res.id} 
-                reservation={res} 
+              <ReservationCard
+                key={res.id}
+                reservation={res}
                 currentUser={currentUser}
                 currentUserRole={currentUserRole}
                 onDelete={onDelete}
@@ -92,9 +92,9 @@ export const TripReservationsSection = ({ reservations, currentUser, currentUser
           </div>
           <div className="grid gap-4">
             {activities.map(res => (
-              <ReservationCard 
-                key={res.id} 
-                reservation={res} 
+              <ReservationCard
+                key={res.id}
+                reservation={res}
                 currentUser={currentUser}
                 currentUserRole={currentUserRole}
                 onDelete={onDelete}

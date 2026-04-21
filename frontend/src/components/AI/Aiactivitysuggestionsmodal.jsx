@@ -71,6 +71,10 @@ export default function AIActivitySuggestionsModal({ isOpen, onClose, trip, hand
         );
 
     const handleGenerate = async () => {
+        if(startDate == '') {
+            setError("Choose start date."); 
+            return
+        }
         setStep('loading');
         setError('');
         try {
@@ -81,9 +85,8 @@ export default function AIActivitySuggestionsModal({ isOpen, onClose, trip, hand
                 user_notes: preferences.trim() || null,
             });
             if (res.status === 201) {
-                onClose()
                 handleAddSuggestions(res.data.data);
-                console.log(res.data.data)
+                onClose()
             }
         } catch (err) {
             setError(err?.res?.data?.detail || 'Something went wrong. Please try again.');
@@ -136,7 +139,7 @@ export default function AIActivitySuggestionsModal({ isOpen, onClose, trip, hand
                                         <input
                                             type="date"
                                             value={startDate}
-                                            onChange={e => setStartDate(e.target.value)}
+                                            onChange={e => {setStartDate(e.target.value); setError(''); setStep('form')}}
                                             className="w-full pl-7 pr-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-teal-500 transition-colors text-gray-700"
                                         />
                                     </div>
