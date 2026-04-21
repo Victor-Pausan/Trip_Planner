@@ -81,6 +81,8 @@ class GetGeneratedActivityList(generics.CreateAPIView):
         if not isinstance(suggestions, list):
             raise ValueError("Invalid AI response")
 
+        generated_activities = []
+
         for suggestion in suggestions:
             if "place" not in suggestion or "start_date" not in suggestion:
                 raise ValueError("Missing fields")
@@ -109,14 +111,20 @@ class GetGeneratedActivityList(generics.CreateAPIView):
                             place = Place.objects.create(id=place_id, name=place_name, photoURI=photo_uri, latitude=latitude,
                                                         longitude=longitude, address=address, rating=rating,
                                                         websiteUri=websiteUri)
-                            SuggestedActivity.objects.create(place=place, start_date=start_date, author=user, trip=trip)
+                            generated_activity = SuggestedActivity.objects.create(place=place, start_date=start_date, author=user, trip=trip)
+                            generated_activities.append(generated_activity)
                         else:
                             raise ValueError()
                     except (ValidationError, DataError) as e:
                         continue
                 else:
                     place = Place.objects.get(id=place_id)
-                    SuggestedActivity.objects.create(place=place, start_date=start_date, author=user, trip=trip)
+                    generated_activity = SuggestedActivity.objects.create(place=place, start_date=start_date, author=user, trip=trip)
+                    generated_activities.append(generated_activity)
 
-        return Response({ 'message': "Activity suggestions generated" }, status=status.HTTP_200_OK)
+        serializer = self.serializer_class(generated_activities, many=True)
+        return Response({
+            'message': "Activity suggestions generated",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
 
