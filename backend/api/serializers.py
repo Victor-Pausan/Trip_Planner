@@ -94,11 +94,12 @@ class PostSerializer(serializers.ModelSerializer):
 class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
-        fields = ['id', 'name', 'photoURI', 'latitude', 'longitude', 'address', 'rating', 'websiteUri']
+        fields = ['id', 'name', 'photoURI', 'latitude', 'longitude', 'address', 'rating', 'websiteUri', 'description']
         extra_kwargs = {
             'photoURI': {'required': False, 'allow_null': True},
             'rating': {'required': False, 'allow_null': True},
             'websiteUri': {'required': False, 'allow_null': True},
+            'description': {'required': False, 'allow_null': True},
         }
 
 class FlightReservationSerializer(serializers.ModelSerializer):

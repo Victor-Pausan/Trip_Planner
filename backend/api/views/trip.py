@@ -22,7 +22,7 @@ def get_place_data(place_id, api_key):
     headers = {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': api_key,
-        'X-Goog-FieldMask': 'id,displayName,photos,location,formattedAddress,rating,websiteUri'
+        'X-Goog-FieldMask': 'id,displayName,photos,location,formattedAddress,rating,websiteUri,editorialSummary'
     }
 
     try:
@@ -48,6 +48,9 @@ def get_place_data(place_id, api_key):
 
         if 'websiteUri' in data and data['websiteUri']:
             place_data['websiteUri'] = data['websiteUri']
+
+        if 'editorialSummary' in data and data['editorialSummary']:
+            place_data['description'] = data['editorialSummary']['text']
 
         if 'photos' in data and data['photos']:
             photos = data['photos']
@@ -87,8 +90,10 @@ def create_place_if_nonexistent(self):
             address = place_data['formattedAddress'] if 'formattedAddress' in place_data else None
             rating = float(place_data['rating']) if 'rating' in place_data else None
             websiteUri = place_data['websiteUri'] if 'websiteUri' in place_data else None
+            description = place_data['description'] if 'description' in place_data else None
             return Place.objects.create(id=place_id, name=place_name, photoURI=photo_uri, latitude=latitude,
-                                        longitude=longitude, address=address, rating=rating, websiteUri=websiteUri)
+                                        longitude=longitude, address=address, rating=rating, websiteUri=websiteUri,
+                                        description=description)
         else:
             raise ObjectDoesNotExist()
     else:

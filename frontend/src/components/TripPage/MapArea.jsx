@@ -135,6 +135,13 @@ const PlaceInfoWindow = ({ selectedPlace, onClose, addToGlobalReservations, trip
           </div>
         </div>
 
+        {/* Description */}
+        <div className="px-4 pb-3">
+          <p className="text-sm text-gray-500 leading-relaxed">
+            {selectedPlace.description}
+          </p>
+        </div>
+
         {/* Add to trip section */}
         {isAuthorized && (
           <>
@@ -238,6 +245,7 @@ export default function MapArea({ mainLocation, reservations, addReservation, tr
         const address = res.data.address
         const rating = res.data.rating
         const websiteUri = res.data.websiteUri
+        const description = res.data.description
 
         setSelectedPlace({
           id: place_id,
@@ -246,7 +254,8 @@ export default function MapArea({ mainLocation, reservations, addReservation, tr
           address: address,
           location: { lat: latitude, lng: longitude },
           rating: rating,
-          websiteUri: websiteUri
+          websiteUri: websiteUri,
+          description: description
         })
       }
     } catch (error) {
