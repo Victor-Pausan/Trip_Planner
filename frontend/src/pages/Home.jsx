@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { MapPin, Calendar, Users } from "lucide-react";
+import Footer from "../components/Footer.jsx";
 
 function Home() {
     const navigate = useNavigate()
@@ -16,7 +17,7 @@ function Home() {
             <div className="min-h-screen bg-background">
             <Navbar />
                 {/* Hero Section */}
-                <main className="container mx-auto px-4 py-16">
+                <main className="container h-screen mx-auto px-4 py-16">
                     <div className="flex flex-col items-center justify-center text-center">
                         <div className="mb-8 inline-flex rounded-full bg-sky-400/10 px-4 py-2">
                             <span className="text-sm font-medium text-sky-400">Plan • Track • Remember</span>
@@ -68,6 +69,7 @@ function Home() {
                         </div>
                     </div>
                 </main>
+                <Footer />
             </div>
         </>
 

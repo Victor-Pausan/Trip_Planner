@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Users, Send, UserPlus, Calendar, Trash2, ArrowLeft, Plus, Copy, Check } from 'lucide-react';
 import MembersModal from "../components/TripPage/MembersModal";
 import { useUser } from "../contexts/UserContext";
+import Footer from "../components/Footer.jsx";
 
 const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
     if (isOpen === '') return null;
@@ -258,6 +259,7 @@ function Group() {
 
     return (
         <>
+            <div className="min-h-screen">
             <Navbar />
             <div className="max-w-6xl mx-auto px-6 py-8">
                 <Link to="/group" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-800 mb-6 transition-colors">
@@ -499,6 +501,8 @@ function Group() {
                 onClose={() => setActiveModal('')}
                 onConfirm={() => { deleteTrip(activeModal); setActiveModal('') }}
             />
+            </div>
+            <Footer />
         </>
     )
 }

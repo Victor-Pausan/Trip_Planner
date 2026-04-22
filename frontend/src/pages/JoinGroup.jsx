@@ -3,6 +3,7 @@ import api from "../api"
 import ProtectedRoute from "../components/ProtectedRoute"
 import { useEffect, useState } from "react"
 import Navbar from "../components/Navbar"
+import Footer from "../components/Footer.jsx";
 
 function GroupJoinForm() {
     const { token } = useParams()
@@ -45,6 +46,7 @@ function GroupJoinForm() {
 
     return (
         <>
+            <div className="min-h-screen">
             <Navbar />
             <div className="max-w-6xl mx-auto px-6 py-8">
                 <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mb-8 relative overflow-hidden">
@@ -71,18 +73,18 @@ function GroupJoinForm() {
                     </div>
                 </div>
                 {message == "Success" &&
-                    (<div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
-                        <span class="font-medium">Request sent with success! Redirecting to home page.</span>
+                    (<div className="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+                        <span className="font-medium">Request sent with success! Redirecting to home page.</span>
                     </div>
                     )}
                 {message == "Error" && 
-                (<div class="p-4 mb-4 text-sm text-fg-error-strong rounded-base bg-success-soft" role="alert">
-                    <span class="font-medium">Request has already been sent. Waiting for approval.</span>
+                (<div className="p-4 mb-4 text-sm text-fg-error-strong rounded-base bg-success-soft" role="alert">
+                    <span className="font-medium">Request has already been sent. Waiting for approval.</span>
                 </div>
                 )}
             </div>
-
-
+            </div>
+            <Footer />
         </>
     )
 }

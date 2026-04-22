@@ -4,6 +4,7 @@ import GroupCard from "../components/GroupCard";
 import Navbar from "../components/Navbar";
 import { Link } from 'react-router-dom';
 import { Users, Trash2, ArrowRight, Plus } from 'lucide-react';
+import Footer from "../components/Footer.jsx";
 
 const DeleteModal = ({ isOpen, onClose, onConfirm }) => {
     if (isOpen === '') return null;
@@ -93,6 +94,7 @@ function GroupList() {
 
     return (
         <>
+            <div className="min-h-screen">
             <Navbar />
 
             <div className="max-w-6xl mx-auto px-6 py-8">
@@ -158,6 +160,8 @@ function GroupList() {
                 onClose={() => setActiveModal('')}
                 onConfirm={() => { deleteGroup(activeModal); setActiveModal('') }}
             />
+            </div>
+            <Footer />
         </>
     );
 }
