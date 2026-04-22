@@ -12,6 +12,7 @@ import JoinGroup from "./pages/JoinGroup";
 import Trip from "./pages/Trip";
 import NewTrip from "./pages/NewTrip"
 import { UserProvider, useUser } from "./contexts/UserContext";
+import TripsList from "./pages/TripsList";
 
 function Logout() {
   const { clearUser } = useUser();
@@ -67,6 +68,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Trip />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/trips"
+          element={
+            <ProtectedRoute>
+              <TripsList />
             </ProtectedRoute>
           }
         />

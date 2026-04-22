@@ -424,7 +424,8 @@ function Trip() {
                                 const address = res2.data.address
                                 const rating = res2.data.rating
                                 const photoUri = res2.data.photoURI
-                                return { ...f, location: { lat: latitude, lng: longitude }, photoURI: photoUri, placeName: placeName, address: address, rating: rating }
+                                const websiteUri = res2.data.websiteUri
+                                return { ...f, location: { lat: latitude, lng: longitude }, photoURI: photoUri, placeName: placeName, address: address, rating: rating, websiteUri:websiteUri }
                             }
                         }
                         return f
@@ -433,7 +434,7 @@ function Trip() {
                 setSuggestions((reservs) => [...reservs, ...suggestionsWithFullData])
             }
         } catch (error) {
-            alert(error)
+            setMessage(error)
         }
     }
 
@@ -493,7 +494,8 @@ function Trip() {
                         const address = res2.data.address
                         const rating = res2.data.rating
                         const photoUri = res2.data.photoURI
-                        return { ...f, location: { lat: latitude, lng: longitude }, photoURI: photoUri, placeName: placeName, address: address, rating: rating }
+                        const websiteUri = res2.data.websiteUri
+                        return { ...f, location: { lat: latitude, lng: longitude }, photoURI: photoUri, placeName: placeName, address: address, rating: rating, websiteUri:websiteUri }
                     }
                 }
                 return f

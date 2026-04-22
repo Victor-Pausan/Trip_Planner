@@ -29,6 +29,11 @@ const Navbar = () => {
         navigate(path)
     }
 
+    const goToTrips = () => {
+        let path = '/trips'
+        navigate(path)
+    }
+
     return (
         <nav className="sticky top-0 z-50 border-b border-gray-200 backdrop-blur-xl">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -49,6 +54,11 @@ const Navbar = () => {
                     <div className="hidden items-center gap-6 md:flex">
                         <button onClick={goToGroup} className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
                             My Groups
+                        </button>
+                    </div>
+                    <div className="hidden items-center gap-6 md:flex">
+                        <button onClick={goToTrips} className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900">
+                            My Trips
                         </button>
                     </div>
                 </div>

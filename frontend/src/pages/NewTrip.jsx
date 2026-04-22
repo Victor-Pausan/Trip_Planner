@@ -13,11 +13,32 @@ const NewTrip = () => {
     const fetchGroups = async () => {
         try {
             const res = await api.get("/api/groups/");
-            setGroups(res.data);
+            const groupsWithRoles = await Promise.all(
+                res.data.map(async (group) => ({
+                    ...group,
+                    userRole: await getUserRole(group.slug),
+                }))
+            );
+    
+            const filteredGroups = groupsWithRoles.filter(
+                ({ userRole }) => userRole === "admin" || userRole === "organiser"
+            );
+            setGroups(filteredGroups);
         } catch (error) {
             alert(error);
         }
     };
+
+    const getUserRole = async (slug) => {
+        try {
+            const res = await api.get(`/api/groups/token/user_role/${slug}/`)
+            if (res.status === 200) {
+                return res.data[0].role;
+            }
+        } catch (error) {
+            alert(error)
+        }
+    }
 
     return (
         <>

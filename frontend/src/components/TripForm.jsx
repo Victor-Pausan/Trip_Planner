@@ -149,9 +149,9 @@ export default function TripForm({ onClose, group_id, groups }) {
                                     >
                                         <option disabled>Who are you traveling with?</option>
                                         <option value="">Solo/New Group</option>
-                                        {groups.map((grp) => (
+                                        {groups.length > 0 ? groups.map((grp) => (
                                             <option key={grp.id} value={grp.id}>{grp.title}</option>
-                                        ))}
+                                        )) : ''}
                                     </select>
                                     <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                                         {apiLoading ? <Loader2 size={18} className="animate-spin" /> : (
