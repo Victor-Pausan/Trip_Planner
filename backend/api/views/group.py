@@ -66,7 +66,7 @@ class AddUserToGroupJoinRequest(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         group = Group.objects.get(slug=self.kwargs['slug'])
-        if not GroupJoinRequest.objects.filter(group=group, user=user).exists():
+        if not (GroupJoinRequest.objects.filter(group=group, user=user).exists() or GroupMembership.objects.filter(group=group, user=user).exists()):
             serializer.save(group=group, user=user)
         else: raise ValidationError("Join request already exists.")
 

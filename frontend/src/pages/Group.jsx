@@ -215,6 +215,17 @@ function Group() {
         }
     }
 
+    const getUser = async (id) => {
+        try {
+            const res = await api.get(`/api/user/${id}/`)
+            if (res.status === 200) {
+                return res.data.username
+            }
+        } catch (error) {
+            alert(error)
+        }
+    }
+
     const getJoinRequests = async (slug) => {
         try {
             const res = await api.get(`/api/groups/token/process/${slug}/`)
